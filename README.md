@@ -1,2 +1,3 @@
 # gotem
-[WIP] A fronted for transmission.
+
+A glamorous clone of [tremc](https://github.com/tremc/tremc).
