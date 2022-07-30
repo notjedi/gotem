@@ -12,16 +12,24 @@ import (
 )
 
 var (
+	debugFlag bool
+	username  string
+	password  string
+	host      string
+	port      uint16
+
 	logfilePath = "debug.log"
 
 	rootCmd = &cobra.Command{
 		Use:     "gotem",
 		Short:   "A glamourous TUI for the BitTorrent client Transmission.",
 		Version: "0.1.0",
-		// Arg:
+		// Arg: TODO
 		Run: func(cmd *cobra.Command, args []string) {
 
-			if debugFlag, _ := cmd.PersistentFlags().GetBool("debug"); debugFlag {
+			config := c.New()
+
+			if debugFlag {
 				logfile, err := tea.LogToFile(logfilePath, "gotem ")
 				if err != nil {
 					exit(err)
@@ -33,9 +41,12 @@ var (
 				}()
 			}
 
-			config := c.New()
-			client, err := context.GetClient(config)
+			config.Username = returnNonNil(username, config.Username)
+			config.Password = returnNonNil(password, config.Password)
+			config.Host = returnNonNil(host, config.Host)
+			config.Port = returnNonNil(port, config.Port)
 
+			client, err := context.GetClient(config)
 			if err != nil {
 				exit(err)
 			}
@@ -48,6 +59,14 @@ var (
 		},
 	}
 )
+
+func returnNonNil[T comparable](val1, val2 T) T {
+	var temp T
+	if val1 == temp {
+		return val2
+	}
+	return val1
+}
 
 func exit(err error) {
 	log.Fatal(err)
@@ -63,11 +82,11 @@ func Execute() {
 
 func init() {
 
-	rootCmd.PersistentFlags().String("host", "localhost", "Host address")
-	rootCmd.PersistentFlags().Uint16("port", 9091, "RPC port")
-	rootCmd.PersistentFlags().String("username", "", "Username to connect to the host")
-	rootCmd.PersistentFlags().String("password", "", "Password to connect to the host")
+	rootCmd.PersistentFlags().StringVar(&host, "host", "", "Host address")
+	rootCmd.PersistentFlags().Uint16Var(&port, "port", 0, "RPC port")
+	rootCmd.PersistentFlags().StringVar(&username, "username", "", "Username to connect to the host")
+	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Password to connect to the host")
 	// should i make this a string so it accepts a path for the debug file?
-	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable debugging")
+	rootCmd.PersistentFlags().BoolVarP(&debugFlag, "debug", "d", false, "Enable debugging")
 	// rootCmd.PersistentFlags().String("path", "/transmission/rpc", "Path to the RPC")
 }

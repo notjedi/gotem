@@ -12,7 +12,6 @@ import (
 type Model struct {
 	client    *transmissionrpc.Client
 	statusbar statusbar.Bubble
-	// help          help.Model
 }
 
 func New(client *transmissionrpc.Client) Model {

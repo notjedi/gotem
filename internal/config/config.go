@@ -11,7 +11,8 @@ type Config struct {
 
 func New() Config {
 	return Config{
-		Host: "localhost",
-		Port: 9091,
+		Host:    "localhost",
+		Port:    9091,
+		RpcPath: "/transmission/rpc",
 	}
 }
