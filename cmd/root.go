@@ -5,7 +5,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	c "github.com/notjedi/gotem/internal/config"
+	"github.com/notjedi/gotem/internal/config"
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/ui"
 	"github.com/spf13/cobra"
@@ -25,20 +25,20 @@ var (
 		Args:    cobra.MaximumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 
-			config := c.New()
+			cfg := config.New()
 
-			config.Username = returnNonNil(username, config.Username)
-			config.Password = returnNonNil(password, config.Password)
-			config.Debug = returnNonNil(debugFlag, config.Debug)
-			config.Host = returnNonNil(host, config.Host)
-			config.Port = returnNonNil(port, config.Port)
+			cfg.Username = returnNonNil(username, cfg.Username)
+			cfg.Password = returnNonNil(password, cfg.Password)
+			cfg.Debug = returnNonNil(debugFlag, cfg.Debug)
+			cfg.Host = returnNonNil(host, cfg.Host)
+			cfg.Port = returnNonNil(port, cfg.Port)
 
-			client, err := context.GetClient(config)
+			ctx, err := context.GetContext(cfg)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			p := tea.NewProgram(ui.New(client), tea.WithAltScreen())
+			p := tea.NewProgram(ui.New(ctx), tea.WithAltScreen())
 			if err := p.Start(); err != nil {
 				log.Fatal(err)
 			}

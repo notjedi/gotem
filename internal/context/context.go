@@ -7,18 +7,22 @@ import (
 	"time"
 
 	"github.com/hekmon/transmissionrpc/v2"
-	c "github.com/notjedi/gotem/internal/config"
+	"github.com/notjedi/gotem/internal/config"
 )
 
-var client *transmissionrpc.Client
+type Context struct {
+	Client *transmissionrpc.Client
+}
 
-func GetClient(config c.Config) (*transmissionrpc.Client, error) {
-	if client == nil {
-		client, err := transmissionrpc.New(config.Host, config.Username, config.Password,
+var contextInstance *Context
+
+func GetContext(c config.Config) (*Context, error) {
+	if contextInstance == nil {
+		client, err := transmissionrpc.New(c.Host, c.Username, c.Password,
 			&transmissionrpc.AdvancedConfig{
-				Port:        config.Port,
-				Debug:       config.Debug,
-				RPCURI:      config.RpcPath,
+				Port:        c.Port,
+				Debug:       c.Debug,
+				RPCURI:      c.RpcPath,
 				HTTPTimeout: 10 * time.Second,
 			})
 		if err != nil {
@@ -31,11 +35,12 @@ func GetClient(config c.Config) (*transmissionrpc.Client, error) {
 		if ok, serverVersion, serverMinimumVersion, err := client.RPCVersion(ctx); err != nil {
 			return nil, err
 		} else if !ok {
-			client = nil
 			return nil, errors.New(fmt.Sprintf(`Remote transmission RPC version (v%d) is
                 incompatible with the transmission library (v%d): remote needs at least v%d`,
 				serverVersion, transmissionrpc.RPCVersion, serverMinimumVersion))
 		}
+		contextInstance = &Context{}
+		contextInstance.Client = client
 	}
-	return client, nil
+	return contextInstance, nil
 }

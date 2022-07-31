@@ -3,18 +3,19 @@ package ui
 import (
 	"fmt"
 
+	// "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hekmon/transmissionrpc/v2"
 	"github.com/knipferrc/teacup/statusbar"
+	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/theme"
 )
 
 type Model struct {
-	client    *transmissionrpc.Client
+	context   *context.Context
 	statusbar statusbar.Bubble
 }
 
-func New(client *transmissionrpc.Client) Model {
+func New(ctx *context.Context) Model {
 	theme := theme.GetTheme("default")
 	statusbarModel := statusbar.New(
 		statusbar.ColorConfig{
@@ -36,7 +37,7 @@ func New(client *transmissionrpc.Client) Model {
 	)
 	return Model{
 		statusbar: statusbarModel,
-		client:    client,
+		context:   ctx,
 	}
 }
 
