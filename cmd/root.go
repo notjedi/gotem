@@ -38,6 +38,7 @@ var (
 				log.Fatal(err)
 			}
 
+			// TODO: add bubbletea debug
 			p := tea.NewProgram(ui.New(ctx), tea.WithAltScreen())
 			if err := p.Start(); err != nil {
 				log.Fatal(err)
@@ -64,10 +65,9 @@ func Execute() {
 
 func init() {
 
-	rootCmd.PersistentFlags().StringVar(&username, "username", "", "Username to connect to the host")
-	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Password to connect to the host")
-	rootCmd.PersistentFlags().BoolVarP(&debugFlag, "debug", "d", false, "Enable debugging")
-	// rootCmd.PersistentFlags().String("path", "/transmission/rpc", "Path to the RPC")
-	rootCmd.PersistentFlags().StringVar(&host, "host", "", "Host address")
+	rootCmd.PersistentFlags().StringVar(&username, "username", "", "username for host")
+	rootCmd.PersistentFlags().StringVar(&password, "password", "", "password for host")
+	rootCmd.PersistentFlags().BoolVarP(&debugFlag, "debug", "d", false, "enable debugging")
+	rootCmd.PersistentFlags().StringVar(&host, "host", "", "host address")
 	rootCmd.PersistentFlags().Uint16Var(&port, "port", 0, "RPC port")
 }
