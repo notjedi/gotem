@@ -6,6 +6,7 @@ type Config struct {
 	Username      string
 	Password      string
 	RpcPath       string
+	Debug         bool
 	FileViewerCmd string
 }
 

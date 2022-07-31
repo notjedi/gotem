@@ -17,13 +17,18 @@ func GetClient(config c.Config) (*transmissionrpc.Client, error) {
 		client, err := transmissionrpc.New(config.Host, config.Username, config.Password,
 			&transmissionrpc.AdvancedConfig{
 				Port:        config.Port,
+				Debug:       config.Debug,
 				RPCURI:      config.RpcPath,
-				HTTPTimeout: 5 * time.Second,
+				HTTPTimeout: 10 * time.Second,
 			})
 		if err != nil {
 			return nil, err
 		}
-		if ok, serverVersion, serverMinimumVersion, err := client.RPCVersion(context.TODO()); err != nil {
+
+		ctx, cancel := context.WithCancel(context.TODO())
+		defer cancel()
+
+		if ok, serverVersion, serverMinimumVersion, err := client.RPCVersion(ctx); err != nil {
 			return nil, err
 		} else if !ok {
 			client = nil
