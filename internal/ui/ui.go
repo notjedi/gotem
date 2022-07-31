@@ -5,13 +5,17 @@ import (
 
 	// "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/knipferrc/teacup/statusbar"
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/theme"
+	"github.com/notjedi/gotem/internal/ui/components/listview"
 )
 
 type Model struct {
+	currView  int
 	context   *context.Context
+	listview  listview.Model
 	statusbar statusbar.Bubble
 }
 
@@ -35,17 +39,25 @@ func New(ctx *context.Context) Model {
 			Background: theme.StatusbarLogoBackgroundColor,
 		},
 	)
+
+	listviewModel := listview.New(ctx)
+
 	return Model{
-		statusbar: statusbarModel,
+		currView:  1,
 		context:   ctx,
+		listview:  listviewModel,
+		statusbar: statusbarModel,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	return m.listview.Init()
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
@@ -62,9 +74,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	}
-	return m, nil
+	m.listview, cmd = m.listview.Update(msg)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	return m.statusbar.View()
+	return lipgloss.JoinVertical(lipgloss.Top,
+		m.listview.View(),
+		m.statusbar.View(),
+	)
 }
