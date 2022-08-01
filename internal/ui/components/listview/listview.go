@@ -21,12 +21,16 @@ var (
 
 type torrentUpdateMsg []list.Item
 type Model struct {
-	List list.Model
-	ctx  *context.Context
+	List         list.Model
+	ctx          *context.Context
+	TitlePadding int
 }
 
 func New(ctx *context.Context, theme theme.Theme) Model {
 	listDelegate := NewCustomDelegate()
+	titlePadding := listDelegate.Styles.NormalTitle.GetPaddingLeft() +
+		listDelegate.Styles.NormalTitle.GetPaddingRight()
+
 	listModel := list.New([]list.Item{}, listDelegate, 0, 0)
 	listModel.SetShowHelp(false)
 	listModel.SetShowStatusBar(false)
@@ -38,8 +42,9 @@ func New(ctx *context.Context, theme theme.Theme) Model {
 		Background(theme.TitleBackgroundColor).
 		Foreground(theme.TitleForegroundColor)
 	return Model{
-		List: listModel,
-		ctx:  ctx,
+		List:         listModel,
+		ctx:          ctx,
+		TitlePadding: titlePadding,
 	}
 }
 

@@ -12,7 +12,7 @@ func generateTorrentUpdateMsg(m Model) tea.Msg {
 	torrents, _ := m.ctx.Client.TorrentGet(context.TODO(), torrentFields, nil)
 	var items []list.Item
 	for _, torrent := range torrents {
-		items = append(items, TorrentItem{torrent})
+		items = append(items, TorrentItem{torrent, m.ctx.ListWidth})
 	}
 	return torrentUpdateMsg(items)
 }

@@ -69,8 +69,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
-		m.statusbar.SetSize(msg.Width - h)
+		m.context.ListWidth = float32(msg.Width - h - m.listview.TitlePadding)
 		m.listview.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
+		m.statusbar.SetSize(msg.Width - h)
 		m.statusbar.SetContent(
 			"NORMAL",
 			"~/.config/nvim/lua/options.lua",

@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	bullet   = "•"
 	ellipsis = "…"
 )
 

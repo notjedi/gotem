@@ -11,7 +11,8 @@ import (
 )
 
 type Context struct {
-	Client *transmissionrpc.Client
+	Client    *transmissionrpc.Client
+	ListWidth float32
 }
 
 var contextInstance *Context
