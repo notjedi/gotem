@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/bubbles v0.11.0
 	github.com/charmbracelet/bubbletea v0.22.0
 	github.com/charmbracelet/lipgloss v0.5.0
+	github.com/dustin/go-humanize v1.0.0
 	github.com/hekmon/transmissionrpc/v2 v2.0.1
 	github.com/knipferrc/teacup v0.2.0
 	github.com/muesli/reflow v0.3.0

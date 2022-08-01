@@ -12,12 +12,11 @@ const (
 )
 
 var (
-	torrentFields = []string{"id", "name", "downloadDir", "status", "desiredAvailable",
-		"rateDownload", "rateUpload", "eta", "uploadRatio", "sizeWhenDone", "haveValid",
-		"haveUnchecked", "addedDate", "uploadedEver", "errorString", "recheckProgress",
-		"peersConnected", "uploadLimit", "downloadLimit", "uploadLimited", "downloadLimited",
-		"bandwidthPriority", "peersSendingToUs", "peersGettingFromUs", "seedRatioLimit",
-		"seedRatioMode", "magnetLink", "honorsSessionLimits", "metadataPercentComplete"}
+	torrentFields = []string{"id", "name", "status", "rateDownload", "rateUpload", "eta",
+		"uploadRatio", "sizeWhenDone", "haveValid", "uploadedEver", "recheckProgress",
+		"peersConnected", "uploadLimited", "downloadLimited", "bandwidthPriority",
+		"peersSendingToUs", "peersGettingFromUs", "seedRatioLimit", "trackerStats",
+		"magnetLink", "honorsSessionLimits", "metadataPercentComplete"}
 )
 
 type torrentUpdateMsg []list.Item
