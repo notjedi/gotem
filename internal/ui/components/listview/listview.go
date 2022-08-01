@@ -7,6 +7,10 @@ import (
 	"github.com/notjedi/gotem/internal/theme"
 )
 
+const (
+	programName string = "gotem"
+)
+
 var (
 	torrentFields = []string{"id", "name", "downloadDir", "status", "desiredAvailable",
 		"rateDownload", "rateUpload", "eta", "uploadRatio", "sizeWhenDone", "haveValid",
@@ -17,7 +21,6 @@ var (
 )
 
 type torrentUpdateMsg []list.Item
-
 type Model struct {
 	List list.Model
 	ctx  *context.Context
@@ -26,11 +29,10 @@ type Model struct {
 func New(ctx *context.Context, theme theme.Theme) Model {
 	listDelegate := NewCustomDelegate()
 	listModel := list.New([]list.Item{}, listDelegate, 0, 0)
-	// TODO: make constant
-	listModel.Title = "gotem"
 	listModel.SetShowHelp(false)
 	listModel.SetShowStatusBar(false)
 	listModel.DisableQuitKeybindings()
+	listModel.Title = programName
 	listModel.Styles.Title = listModel.Styles.Title.Copy().
 		Bold(true).
 		Italic(true).
@@ -54,7 +56,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case torrentUpdateMsg:
-		m.List.SetItems(msg)
+		// BUG: the items are disappearing if i update the items while filterState != Unfiltered
+		// FIXME: ig it makes sense to stop updating the items while filtering
+		if m.List.FilterState() == list.Unfiltered {
+			m.List.SetItems(msg)
+		}
 		return m, m.updateTorrentsCmd()
 	}
 

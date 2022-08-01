@@ -79,7 +79,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		)
 
 	case tea.KeyMsg:
-		if msg.Type == tea.KeyCtrlC || msg.Type == tea.KeyEsc {
+		if msg.Type == tea.KeyCtrlC || msg.Type == tea.KeyEsc || msg.String() == "q" {
 			return m, tea.Quit
 		}
 	}
