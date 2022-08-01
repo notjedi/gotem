@@ -19,6 +19,10 @@ type Model struct {
 	statusbar statusbar.Bubble
 }
 
+var (
+	docStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
+)
+
 func New(ctx *context.Context) Model {
 	theme := theme.GetTheme("default")
 	statusbarModel := statusbar.New(
@@ -40,7 +44,7 @@ func New(ctx *context.Context) Model {
 		},
 	)
 
-	listviewModel := listview.New(ctx)
+	listviewModel := listview.New(ctx, theme)
 
 	return Model{
 		currView:  1,
@@ -58,15 +62,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
+	m.listview, cmd = m.listview.Update(msg)
+	cmds = append(cmds, cmd)
+
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		m.statusbar.SetSize(msg.Width)
+		h, v := docStyle.GetFrameSize()
+		m.statusbar.SetSize(msg.Width - h)
+		m.listview.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
 		m.statusbar.SetContent(
 			"NORMAL",
 			"~/.config/nvim/lua/options.lua",
 			"lua",
-			fmt.Sprintf("%dx%d", msg.Width, msg.Height),
+			fmt.Sprintf("%dx%d", msg.Width, statusbar.Height),
 		)
 
 	case tea.KeyMsg:
@@ -74,15 +83,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	}
-	m.listview, cmd = m.listview.Update(msg)
-	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Top,
-		m.listview.View(),
-		m.statusbar.View(),
+		docStyle.Render(fmt.Sprintf("%s\n%s", m.listview.View(), m.statusbar.View())),
 	)
 }

@@ -11,6 +11,8 @@ type Theme struct {
 	StatusbarTotalFilesBackgroundColor   lipgloss.AdaptiveColor
 	StatusbarLogoForegroundColor         lipgloss.AdaptiveColor
 	StatusbarLogoBackgroundColor         lipgloss.AdaptiveColor
+	TitleBackgroundColor                 lipgloss.AdaptiveColor
+	TitleForegroundColor                 lipgloss.AdaptiveColor
 }
 
 var themeMap = map[string]Theme{
@@ -23,6 +25,8 @@ var themeMap = map[string]Theme{
 		StatusbarTotalFilesBackgroundColor:   lipgloss.AdaptiveColor{Dark: "#A550DF", Light: "#A550DF"},
 		StatusbarLogoForegroundColor:         lipgloss.AdaptiveColor{Dark: "#ffffff", Light: "#ffffff"},
 		StatusbarLogoBackgroundColor:         lipgloss.AdaptiveColor{Dark: "#6124DF", Light: "#6124DF"},
+		TitleBackgroundColor:                 lipgloss.AdaptiveColor{Dark: "63", Light: "63"},
+		TitleForegroundColor:                 lipgloss.AdaptiveColor{Dark: "#ffffff", Light: "#ffffff"},
 	},
 }
 

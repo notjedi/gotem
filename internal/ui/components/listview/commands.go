@@ -18,7 +18,7 @@ func generateTorrentUpdateMsg(m Model) tea.Msg {
 }
 
 func (m Model) updateTorrentsCmd() tea.Cmd {
-	return tea.Tick(time.Second*time.Duration(1), func(t time.Time) tea.Msg {
+	return tea.Tick(time.Second*time.Duration(2), func(t time.Time) tea.Msg {
 		return generateTorrentUpdateMsg(m)
 	})
 }
