@@ -19,41 +19,48 @@ var statusToString = map[transmissionrpc.TorrentStatus]string{
 	transmissionrpc.TorrentStatusSeed:         "Seeding",
 	transmissionrpc.TorrentStatusIsolated:     "Isolated",
 }
-var titleSpacingRatios = [...]float32{0.75, 0.15, 0.10}
-var descSpacingRatios = [...]float32{0.25, 0.25, 0.25, 0.25}
 
 // TODO: make this ratio global like context or something? instead of recomputing it over and over
 type TorrentItem struct {
-	item  transmissionrpc.Torrent
-	width float32
+	item         transmissionrpc.Torrent
+	titleSpacing [3]uint
+	descSpacing  [4]uint
 }
 
 func (t TorrentItem) Title() string {
-	name := ljustText(*t.item.Name, titleSpacingRatios[0]*t.width)
+	name := ljustText(*t.item.Name, t.titleSpacing[0])
 
 	progress := ljustText(fmt.Sprintf("%s / %s", humanize.Bytes(uint64(*t.item.HaveValid)),
 		humanize.Bytes(uint64((*t.item.SizeWhenDone).Byte()))),
-		titleSpacingRatios[1]*t.width)
+		t.titleSpacing[1])
 
 	networkSpeed := truncateText(fmt.Sprintf("↓ %s  ↑ %s",
 		humanize.Bytes(uint64(*t.item.RateDownload)),
 		humanize.Bytes(uint64(*t.item.RateUpload))),
-		uint(titleSpacingRatios[2]*t.width), ellipsis)
+		t.titleSpacing[2], ellipsis)
 
 	return fmt.Sprintf("%s%s%s", name, progress, networkSpeed)
 }
 
 func (t TorrentItem) Description() string {
-	status := ljustText(statusToString[*t.item.Status], descSpacingRatios[0]*t.width)
+	var statusString string
+	if *t.item.Status == transmissionrpc.TorrentStatusDownload ||
+		*t.item.Status == transmissionrpc.TorrentStatusCheck {
+		statusString = fmt.Sprintf("%s (%.2f%%)",
+			statusToString[*t.item.Status], *t.item.PercentDone*100)
+	} else {
+		statusString = statusToString[*t.item.Status]
+	}
+	status := ljustText(statusString, t.descSpacing[0])
 
 	uploaded := ljustText(fmt.Sprintf("%s uploaded", humanize.Bytes(uint64(*t.item.UploadedEver))),
-		descSpacingRatios[1]*t.width)
+		t.descSpacing[1])
 
 	peersConnected := ljustText(fmt.Sprintf("%d peers connected", *t.item.PeersConnected),
-		descSpacingRatios[2]*t.width)
+		t.descSpacing[2])
 
 	seedsAndLeeches := truncateText(fmt.Sprintf("%d seeds %d leeches", t.maxSeeders(),
-		t.maxLeechers()), uint(descSpacingRatios[3]*t.width), ellipsis)
+		t.maxLeechers()), t.descSpacing[3], ellipsis)
 
 	return fmt.Sprintf("%s%s%s%s", status, uploaded, peersConnected, seedsAndLeeches)
 }
@@ -91,7 +98,6 @@ func truncateText(text string, maxWidth uint, tail string) string {
 	return truncate.StringWithTail(text, maxWidth, tail)
 }
 
-func ljustText(text string, maxWidth float32) string {
-	width := uint(maxWidth)
-	return padding.String(truncateText(text, width, ellipsis), width)
+func ljustText(text string, maxWidth uint) string {
+	return padding.String(truncateText(text, maxWidth, ellipsis), maxWidth)
 }

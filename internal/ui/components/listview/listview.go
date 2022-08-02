@@ -16,7 +16,7 @@ var (
 		"uploadRatio", "sizeWhenDone", "haveValid", "uploadedEver", "recheckProgress",
 		"peersConnected", "uploadLimited", "downloadLimited", "bandwidthPriority",
 		"peersSendingToUs", "peersGettingFromUs", "seedRatioLimit", "trackerStats",
-		"magnetLink", "honorsSessionLimits", "metadataPercentComplete"}
+		"magnetLink", "honorsSessionLimits", "metadataPercentComplete", "percentDone"}
 )
 
 type torrentUpdateMsg []list.Item

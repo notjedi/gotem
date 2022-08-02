@@ -79,6 +79,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fmt.Sprintf("%dx%d", msg.Width, statusbar.Height),
 		)
 
+		textWidth := float32(msg.Width - h - m.listview.TitlePadding)
+		if textWidth <= 140 {
+			m.context.TitleSpacing = [...]uint{uint(0.50 * textWidth), uint(0.25 * textWidth),
+				uint(0.25 * textWidth)}
+			m.context.DescSpacing = [...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
+				uint(0.25 * textWidth), uint(0.25 * textWidth)}
+		} else {
+			m.context.TitleSpacing = [...]uint{uint(0.75 * textWidth), uint(0.15 * textWidth),
+				uint(0.10 * textWidth)}
+			m.context.DescSpacing = [...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
+				uint(0.25 * textWidth), uint(0.25 * textWidth)}
+		}
+
 	case tea.KeyMsg:
 		if msg.Type == tea.KeyCtrlC || msg.Type == tea.KeyEsc || msg.String() == "q" {
 			return m, tea.Quit
