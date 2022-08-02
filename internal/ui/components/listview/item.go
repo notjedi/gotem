@@ -28,34 +28,32 @@ type TorrentItem struct {
 	width float32
 }
 
-// TODO: create wrapper func to pad and truncate string
 func (t TorrentItem) Title() string {
-	name := padding.String(truncate.StringWithTail(*t.item.Name,
-		uint(titleSpacingRatios[0]*t.width), ellipsis), uint(titleSpacingRatios[0]*t.width))
+	name := ljustText(*t.item.Name, titleSpacingRatios[0]*t.width)
 
-	progress := padding.String(fmt.Sprintf("%s / %s", humanize.Bytes(uint64(*t.item.HaveValid)),
-		humanize.Bytes(uint64((*t.item.SizeWhenDone).Byte()))), uint(titleSpacingRatios[1]*t.width))
+	progress := ljustText(fmt.Sprintf("%s / %s", humanize.Bytes(uint64(*t.item.HaveValid)),
+		humanize.Bytes(uint64((*t.item.SizeWhenDone).Byte()))),
+		titleSpacingRatios[1]*t.width)
 
-	networkSpeed := padding.String(fmt.Sprintf("↓ %s  ↑ %s",
+	networkSpeed := truncateText(fmt.Sprintf("↓ %s  ↑ %s",
 		humanize.Bytes(uint64(*t.item.RateDownload)),
-		humanize.Bytes(uint64(*t.item.RateUpload))), uint(titleSpacingRatios[2]*t.width))
+		humanize.Bytes(uint64(*t.item.RateUpload))),
+		uint(titleSpacingRatios[2]*t.width), ellipsis)
 
 	return fmt.Sprintf("%s%s%s", name, progress, networkSpeed)
 }
 
 func (t TorrentItem) Description() string {
-	status := padding.String(truncate.StringWithTail(statusToString[*t.item.Status],
-		uint(descSpacingRatios[0]*t.width), ellipsis), uint(descSpacingRatios[0]*t.width))
+	status := ljustText(statusToString[*t.item.Status], descSpacingRatios[0]*t.width)
 
-	uploaded := padding.String(
-		fmt.Sprintf("%s uploaded", humanize.Bytes(uint64(*t.item.UploadedEver))),
-		uint(descSpacingRatios[1]*t.width))
+	uploaded := ljustText(fmt.Sprintf("%s uploaded", humanize.Bytes(uint64(*t.item.UploadedEver))),
+		descSpacingRatios[1]*t.width)
 
-	peersConnected := padding.String(fmt.Sprintf("%d peers connected", *t.item.PeersConnected),
-		uint(descSpacingRatios[2]*t.width))
+	peersConnected := ljustText(fmt.Sprintf("%d peers connected", *t.item.PeersConnected),
+		descSpacingRatios[2]*t.width)
 
-	seedsAndLeeches := padding.String(fmt.Sprintf("%d seeds %d leeches", t.maxSeeders(),
-		t.maxLeechers()), uint(descSpacingRatios[3]*t.width))
+	seedsAndLeeches := truncateText(fmt.Sprintf("%d seeds %d leeches", t.maxSeeders(),
+		t.maxLeechers()), uint(descSpacingRatios[3]*t.width), ellipsis)
 
 	return fmt.Sprintf("%s%s%s%s", status, uploaded, peersConnected, seedsAndLeeches)
 }
@@ -87,4 +85,13 @@ func (t *TorrentItem) maxLeechers() int64 {
 		}
 	}
 	return max
+}
+
+func truncateText(text string, maxWidth uint, tail string) string {
+	return truncate.StringWithTail(text, maxWidth, tail)
+}
+
+func ljustText(text string, maxWidth float32) string {
+	width := uint(maxWidth)
+	return padding.String(truncateText(text, width, ellipsis), width)
 }
