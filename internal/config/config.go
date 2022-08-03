@@ -5,7 +5,7 @@ type Config struct {
 	Port          uint16
 	Username      string
 	Password      string
-	RpcPath       string
+	RPCPath       string
 	Debug         bool
 	FileViewerCmd string
 }
@@ -14,6 +14,6 @@ func New() Config {
 	return Config{
 		Host:    "localhost",
 		Port:    9091,
-		RpcPath: "/transmission/rpc",
+		RPCPath: "/transmission/rpc",
 	}
 }

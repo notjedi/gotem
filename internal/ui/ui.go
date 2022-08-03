@@ -3,21 +3,31 @@ package ui
 import (
 	"fmt"
 
-	// "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/knipferrc/teacup/statusbar"
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/theme"
+	"github.com/notjedi/gotem/internal/ui/components/detailview"
 	"github.com/notjedi/gotem/internal/ui/components/listview"
 )
 
+type View int32
 type Model struct {
-	currView  int
-	context   *context.Context
-	listview  listview.Model
-	statusbar statusbar.Bubble
+	currView   View
+	context    *context.Context
+	listView   listview.Model
+	detailView detailview.Model
+	statusbar  statusbar.Bubble
 }
+
+type Direction int
+
+const (
+	TorrentListView View = iota + 1
+	TorrentDetailView
+	HelpView
+)
 
 var (
 	docStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
@@ -44,33 +54,36 @@ func New(ctx *context.Context) Model {
 		},
 	)
 
-	listviewModel := listview.New(ctx, theme)
+	listViewModel := listview.New(ctx, theme)
 
 	return Model{
-		currView:  1,
+		currView:  TorrentListView,
 		context:   ctx,
-		listview:  listviewModel,
+		listView:  listViewModel,
 		statusbar: statusbarModel,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return m.listview.Init()
+	return m.listView.Init()
 }
 
+// TODO: update statusbar content
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	m.listview, cmd = m.listview.Update(msg)
+	m.listView, cmd = m.listView.Update(msg)
+	cmds = append(cmds, cmd)
+	m.detailView, cmd = m.detailView.Update(msg)
 	cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
-		m.context.ListWidth = float32(msg.Width - h - m.listview.TitlePadding)
-		m.listview.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
+		m.context.ListWidth = float32(msg.Width - h - m.listView.TitlePadding)
+		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
 		m.statusbar.SetSize(msg.Width - h)
 		m.statusbar.SetContent(
 			"NORMAL",
@@ -79,7 +92,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fmt.Sprintf("%dx%d", msg.Width, statusbar.Height),
 		)
 
-		textWidth := float32(msg.Width - h - m.listview.TitlePadding)
+		// TODO: find a better way to align fields
+		textWidth := float32(msg.Width - h - m.listView.TitlePadding)
 		if textWidth <= 140 {
 			m.context.TitleSpacing = [...]uint{uint(0.50 * textWidth), uint(0.25 * textWidth),
 				uint(0.25 * textWidth)}
@@ -102,7 +116,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return lipgloss.JoinVertical(lipgloss.Top,
-		docStyle.Render(fmt.Sprintf("%s\n%s", m.listview.View(), m.statusbar.View())),
-	)
+	if m.currView == TorrentListView {
+		return lipgloss.JoinVertical(lipgloss.Top,
+			docStyle.Render(fmt.Sprintf("%s\n%s", m.listView.View(), m.statusbar.View())),
+		)
+	} else if m.currView == TorrentDetailView {
+		// TODO
+		return ""
+	}
+	return ""
 }
