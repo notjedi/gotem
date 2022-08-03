@@ -8,15 +8,25 @@ import (
 )
 
 const (
+	// TODO: move this to context? as this is a global thing
 	programName string = "gotem"
 )
 
+/*
+	TODO: make this part of context? i'll be using more or less the same fields in detailview
+
+i can prolly use package specific fields to squeeze a tiny tiny amount of performance. since the
+response to the request made comes from c, i can kinda assume that adding more fields is basically
+free. so the performance gain comes down to json serialization and deserialization? and as go is
+also kinda fast, ig the performance gain here is immeasurable? anyways, i'll use package specific
+fields for now and make it part of context as we go?
+*/
 var (
-	torrentFields = []string{"id", "name", "status", "rateDownload", "rateUpload", "eta",
-		"uploadRatio", "sizeWhenDone", "haveValid", "uploadedEver", "recheckProgress",
+	torrentFields = []string{"id", "hashString", "name", "status", "rateDownload", "rateUpload",
+		"eta", "uploadRatio", "sizeWhenDone", "haveValid", "uploadedEver", "recheckProgress",
 		"peersConnected", "uploadLimited", "downloadLimited", "bandwidthPriority",
-		"peersSendingToUs", "peersGettingFromUs", "seedRatioLimit", "trackerStats",
-		"magnetLink", "honorsSessionLimits", "metadataPercentComplete", "percentDone"}
+		"peersSendingToUs", "peersGettingFromUs", "seedRatioLimit", "trackerStats", "magnetLink",
+		"honorsSessionLimits", "metadataPercentComplete", "percentDone"}
 )
 
 type torrentUpdateMsg []list.Item

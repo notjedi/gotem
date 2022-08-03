@@ -20,7 +20,7 @@ var statusToString = map[transmissionrpc.TorrentStatus]string{
 	transmissionrpc.TorrentStatusIsolated:     "Isolated",
 }
 
-// TODO: make this ratio global like context or something? instead of recomputing it over and over
+// TODO: take arg to global context instead of copying all spacing values to item object
 type TorrentItem struct {
 	item         transmissionrpc.Torrent
 	titleSpacing [3]uint
@@ -34,6 +34,9 @@ func (t TorrentItem) Title() string {
 		humanize.Bytes(uint64((*t.item.SizeWhenDone).Byte()))),
 		t.titleSpacing[1])
 
+	// TODO: network speeds are in SI standards, we prolly want it in IEC standards
+	// if we change this to IEC standards, then it makes sense
+	// to change the file sizes to IEC standards too
 	networkSpeed := truncateText(fmt.Sprintf("↓ %s  ↑ %s",
 		humanize.Bytes(uint64(*t.item.RateDownload)),
 		humanize.Bytes(uint64(*t.item.RateUpload))),
@@ -42,8 +45,10 @@ func (t TorrentItem) Title() string {
 	return fmt.Sprintf("%s%s%s", name, progress, networkSpeed)
 }
 
+// TODO: display eta and seeding ratio
 func (t TorrentItem) Description() string {
 	var statusString string
+	// BUG: change progress to `recheckProgress` if state == verifying
 	if *t.item.Status == transmissionrpc.TorrentStatusDownload ||
 		*t.item.Status == transmissionrpc.TorrentStatusCheck {
 		statusString = fmt.Sprintf("%s (%.2f%%)",
@@ -70,9 +75,9 @@ func (t TorrentItem) FilterValue() string {
 }
 
 /*
-   should i replace maxSeeders and maxLeechers with this?
-   https://stackoverflow.com/questions/18930910/access-struct-property-by-name/18931036#18931036
-   TODO: set seeds and leeches while instantiating the struct? using a New() method prolly?
+should i replace maxSeeders and maxLeechers with this?
+https://stackoverflow.com/questions/18930910/access-struct-property-by-name/18931036#18931036
+TODO: set seeds and leeches while instantiating the struct? using a New() method prolly?
 */
 func (t *TorrentItem) maxSeeders() int64 {
 	var max int64
