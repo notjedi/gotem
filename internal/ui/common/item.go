@@ -2,6 +2,8 @@ package common
 
 import (
 	"fmt"
+	"math"
+	"time"
 
 	"github.com/dustin/go-humanize"
 	"github.com/hekmon/transmissionrpc/v2"
@@ -14,25 +16,15 @@ const (
 )
 
 var (
-	statusToString = map[transmissionrpc.TorrentStatus]string{
-		transmissionrpc.TorrentStatusStopped:      "Paused",
-		transmissionrpc.TorrentStatusCheckWait:    "Queued to verify",
-		transmissionrpc.TorrentStatusCheck:        "Verifying",
-		transmissionrpc.TorrentStatusDownloadWait: "Queued to download",
-		transmissionrpc.TorrentStatusDownload:     "Downloading",
-		transmissionrpc.TorrentStatusSeedWait:     "Queued to seed",
-		transmissionrpc.TorrentStatusSeed:         "Seeding",
-		transmissionrpc.TorrentStatusIsolated:     "Isolated",
+	speedToStatus = map[bool]string{
+		true:  "Downloading",
+		false: "Idle",
 	}
-
 	/*
-	   TODO: make this part of context? i'll be using more or less the same fields in detailview
-
 	   i can prolly use package specific fields to squeeze a tiny tiny amount of performance.
 	   since the response to the request made comes from c, i can kinda assume that adding
 	   more fields is basically free. so the performance gain comes down to json serialization and
 	   deserialization? and as go is also kinda fast, ig the performance gain here is immeasurable?
-	   anyways, i'll use package specific fields for now and make it part of context as we go?
 	*/
 	torrentFields = []string{"id", "hashString", "name", "status", "rateDownload", "rateUpload",
 		"eta", "uploadRatio", "sizeWhenDone", "haveValid", "uploadedEver", "recheckProgress",
@@ -41,21 +33,20 @@ var (
 		"honorsSessionLimits", "metadataPercentComplete", "percentDone"}
 )
 
-// TODO: take arg to global context instead of copying all spacing values to item object
 type TorrentItem struct {
 	item         transmissionrpc.Torrent
 	titleSpacing [3]uint
-	descSpacing  [4]uint
+	descSpacing  [5]uint
 }
 
 func (t TorrentItem) Title() string {
 	name := ljustText(*t.item.Name, t.titleSpacing[0])
 
 	progress := ljustText(fmt.Sprintf("%s / %s", humanize.Bytes(uint64(*t.item.HaveValid)),
-		humanize.Bytes(uint64((*t.item.SizeWhenDone).Byte()))),
+		humanize.Bytes(uint64(t.item.SizeWhenDone.Byte()))),
 		t.titleSpacing[1])
 
-	// TODO: network speeds are in SI standards, we prolly want it in IEC standards
+	// NOTE: network speeds are in SI standards, we prolly want it in IEC standards
 	// if we change this to IEC standards, then it makes sense
 	// to change the file sizes to IEC standards too
 	networkSpeed := truncateText(fmt.Sprintf("↓ %s  ↑ %s",
@@ -66,18 +57,8 @@ func (t TorrentItem) Title() string {
 	return fmt.Sprintf("%s%s%s", name, progress, networkSpeed)
 }
 
-// TODO: display eta and seeding ratio
 func (t TorrentItem) Description() string {
-	var statusString string
-	// BUG: change progress to `recheckProgress` if state == verifying
-	if *t.item.Status == transmissionrpc.TorrentStatusDownload ||
-		*t.item.Status == transmissionrpc.TorrentStatusCheck {
-		statusString = fmt.Sprintf("%s (%.2f%%)",
-			statusToString[*t.item.Status], *t.item.PercentDone*100)
-	} else {
-		statusString = statusToString[*t.item.Status]
-	}
-	status := ljustText(statusString, t.descSpacing[0])
+	status := ljustText(t.getStatus(), t.descSpacing[0])
 
 	uploaded := ljustText(fmt.Sprintf("%s uploaded", humanize.Bytes(uint64(*t.item.UploadedEver))),
 		t.descSpacing[1])
@@ -85,21 +66,48 @@ func (t TorrentItem) Description() string {
 	peersConnected := ljustText(fmt.Sprintf("%d peers connected", *t.item.PeersConnected),
 		t.descSpacing[2])
 
-	seedsAndLeeches := truncateText(fmt.Sprintf("%d seeds %d leeches", t.maxSeeders(),
-		t.maxLeechers()), t.descSpacing[3], ellipsis)
+	seedsAndLeeches := ljustText(fmt.Sprintf("%d seeds %d leeches", t.maxSeeders(),
+		t.maxLeechers()), t.descSpacing[3])
 
-	return fmt.Sprintf("%s%s%s%s", status, uploaded, peersConnected, seedsAndLeeches)
+	etaAndRatio := truncateText(fmt.Sprintf("  %s   𢡄 %.2f",
+		humanizeDuration(time.Second*time.Duration(*t.item.Eta)),
+		math.Max(0.0, *t.item.UploadRatio)), t.descSpacing[4], ellipsis)
+
+	return fmt.Sprintf("%s%s%s%s%s", status, uploaded, peersConnected, seedsAndLeeches, etaAndRatio)
 }
 
 func (t TorrentItem) FilterValue() string {
 	return *t.item.Name
 }
 
-/*
-should i replace maxSeeders and maxLeechers with this?
-https://stackoverflow.com/questions/18930910/access-struct-property-by-name/18931036#18931036
-TODO: set seeds and leeches while instantiating the struct? using a New() method prolly?
-*/
+func (t *TorrentItem) getStatus() string {
+	switch *t.item.Status {
+	case transmissionrpc.TorrentStatusStopped:
+		return "Paused"
+	case transmissionrpc.TorrentStatusCheckWait:
+		return "Queued to check files"
+	case transmissionrpc.TorrentStatusCheck:
+		return fmt.Sprintf("Checking files (%.2f%%)", *t.item.RecheckProgress*100)
+	case transmissionrpc.TorrentStatusDownloadWait:
+		return fmt.Sprintf("Queued to download (%s)", humanize.Ordinal(int(*t.item.QueuePosition)))
+	case transmissionrpc.TorrentStatusDownload:
+		if *t.item.MetadataPercentComplete == 1.0 {
+			statusString := speedToStatus[*t.item.RateDownload > 0.0]
+			return fmt.Sprintf("%s (%.2f%%)", statusString, *t.item.PercentDone*100)
+		} else {
+			return fmt.Sprintf("Getting metadata (%.2f%%)", *t.item.MetadataPercentComplete*100)
+		}
+	case transmissionrpc.TorrentStatusSeedWait:
+		return fmt.Sprintf("Queued to seed (%s)", humanize.Ordinal(int(*t.item.QueuePosition)))
+	case transmissionrpc.TorrentStatusSeed:
+		return "Seeding"
+	case transmissionrpc.TorrentStatusIsolated:
+		return "Isolated"
+	default:
+		return "Unknow state"
+	}
+}
+
 func (t *TorrentItem) maxSeeders() int64 {
 	var max int64
 	for _, value := range (*t).item.TrackerStats {
@@ -126,4 +134,22 @@ func truncateText(text string, maxWidth uint, tail string) string {
 
 func ljustText(text string, maxWidth uint) string {
 	return padding.String(truncateText(text, maxWidth, ellipsis), maxWidth)
+}
+
+// taken from - https://gist.github.com/harshavardhana/327e0577c4fed9211f65
+func humanizeDuration(duration time.Duration) string {
+	if duration.Seconds() < 0.0 {
+		return ""
+	} else if duration.Seconds() < 60.0 {
+		return fmt.Sprintf("%ds", int64(duration.Seconds()))
+	} else if duration.Minutes() < 60.0 {
+		return fmt.Sprintf("%dm", int64(duration.Minutes()))
+	} else if duration.Hours() < 24.0 {
+		remainingMinutes := math.Mod(duration.Minutes(), 60)
+		return fmt.Sprintf("%dh %dm",
+			int64(duration.Hours()), int64(remainingMinutes))
+	} else {
+		remainingHours := math.Mod(duration.Hours(), 24)
+		return fmt.Sprintf("%dd %dh", int64(duration.Hours()/24), int64(remainingHours))
+	}
 }
