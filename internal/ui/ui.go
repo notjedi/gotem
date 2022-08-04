@@ -2,10 +2,13 @@ package ui
 
 import (
 	"fmt"
+	"math"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/hekmon/transmissionrpc/v2"
 	"github.com/knipferrc/teacup/statusbar"
+	"github.com/notjedi/gotem/internal/config"
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/theme"
 	"github.com/notjedi/gotem/internal/ui/components/detailview"
@@ -68,7 +71,6 @@ func (m Model) Init() tea.Cmd {
 	return m.listView.Init()
 }
 
-// TODO: update statusbar content
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -86,33 +88,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := docStyle.GetFrameSize()
 		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
 		m.statusbar.SetSize(msg.Width - h)
-		m.statusbar.SetContent(
-			"NORMAL",
-			"~/.config/nvim/lua/options.lua",
-			"lua",
-			fmt.Sprintf("%dx%d", msg.Width, msg.Height),
-		)
 
-		// TODO: find a better way to align fields
-		// NOTE: take padding of NormalTitle style if we modify it
-		// https://github.com/notjedi/gotem/blob/9471ba90d28728b1dccc96cdea0a8db20c53b6de/internal/ui/components/listview/listview.go#L25=
-		textWidth := float32(msg.Width - h)
-		if textWidth <= 140 {
-			m.context.SetTitleSpacing([...]uint{uint(0.50 * textWidth), uint(0.25 * textWidth),
-				uint(0.25 * textWidth)})
-			m.context.SetDescSpacing([...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
-				uint(0.25 * textWidth), uint(0.15 * textWidth), uint(0.10 * textWidth)})
-		} else {
-			m.context.SetTitleSpacing([...]uint{uint(0.75 * textWidth), uint(0.15 * textWidth),
-				uint(0.10 * textWidth)})
-			m.context.SetDescSpacing([...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
-				uint(0.25 * textWidth), uint(0.15 * textWidth), uint(0.10 * textWidth)})
-		}
+		/*
+		   NOTE: take padding of NormalTitle style if we modify it
+		   https://github.com/notjedi/gotem/blob/9471ba90d28728b1dccc96cdea0a8db20c53b6de/internal/ui/components/listview/listview.go#L25
+		   HACK: directly using `percent` * msg.Width is a little buggy, cause sometimes in
+		   descSpacing `0.25 * 3` < `0.75`, which leads to off by 1 or 2 spacing issues
+		*/
+		textWidth := uint(math.Ceil(float64(msg.Width-h) * 0.05))
+		m.context.SetTitleSpacing([...]uint{12 * textWidth, // 60%
+			4 * textWidth, // 20%
+			4 * textWidth, // 20%
+		})
+		m.context.SetDescSpacing([...]uint{4 * textWidth, // 20%
+			4 * textWidth, // 20%
+			4 * textWidth, // 20%
+			4 * textWidth, // 20%
+			4 * textWidth, // 20%
+		})
 
 	case tea.KeyMsg:
 		if msg.Type == tea.KeyCtrlC || msg.Type == tea.KeyEsc || msg.String() == "q" {
 			return m, tea.Quit
 		}
+
+	case statusbarUpdateMsg:
+		m.statusbar.SetContent(getStatusBarContent(statusbarUpdateMsg))
 	}
 
 	return m, tea.Batch(cmds...)
@@ -130,5 +131,12 @@ func (m Model) View() string {
 	return ""
 }
 
-func getStatusBarContent() {
+func getStatusBarContent(torrents []transmissionrpc.Torrent) (string, string, string, string) {
+	/*
+		1. total torrent info
+		2. filter by and sort by values
+		3. total gb uploaded? time elapsed? file count?
+		4. net download and upload speed
+	*/
+	return config.ProgramName, "", "", ""
 }
