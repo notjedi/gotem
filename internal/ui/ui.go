@@ -54,7 +54,7 @@ func New(ctx context.Context) Model {
 		},
 	)
 
-	listViewModel := listview.New(ctx, theme)
+	listViewModel := listview.New(ctx)
 
 	return Model{
 		currView:  TorrentListView,
@@ -73,37 +73,40 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	m.listView, cmd = m.listView.Update(msg)
+	if m.currView == TorrentListView {
+		m.listView, cmd = m.listView.Update(msg)
+	} else if m.currView == TorrentDetailView {
+		m.detailView, cmd = m.detailView.Update(msg)
+	}
 	cmds = append(cmds, cmd)
-	// m.detailView, cmd = m.detailView.Update(msg)
-	// cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
-		// m.context.ListWidth = float32(msg.Width - h - m.listView.TitlePadding)
 		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
 		m.statusbar.SetSize(msg.Width - h)
 		m.statusbar.SetContent(
 			"NORMAL",
 			"~/.config/nvim/lua/options.lua",
 			"lua",
-			fmt.Sprintf("%dx%d", msg.Width, statusbar.Height),
+			fmt.Sprintf("%dx%d", msg.Width, msg.Height),
 		)
 
 		// TODO: find a better way to align fields
-		textWidth := float32(msg.Width - h - m.listView.TitlePadding)
+		// NOTE: take padding of NormalTitle style if we modify it
+		// https://github.com/notjedi/gotem/blob/9471ba90d28728b1dccc96cdea0a8db20c53b6de/internal/ui/components/listview/listview.go#L25=
+		textWidth := float32(msg.Width - h)
 		if textWidth <= 140 {
 			m.context.SetTitleSpacing([...]uint{uint(0.50 * textWidth), uint(0.25 * textWidth),
 				uint(0.25 * textWidth)})
 			m.context.SetDescSpacing([...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
-				uint(0.25 * textWidth), uint(0.25 * textWidth)})
+				uint(0.25 * textWidth), uint(0.15 * textWidth), uint(0.10 * textWidth)})
 		} else {
 			m.context.SetTitleSpacing([...]uint{uint(0.75 * textWidth), uint(0.15 * textWidth),
 				uint(0.10 * textWidth)})
 			m.context.SetDescSpacing([...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
-				uint(0.25 * textWidth), uint(0.25 * textWidth)})
+				uint(0.25 * textWidth), uint(0.15 * textWidth), uint(0.10 * textWidth)})
 		}
 
 	case tea.KeyMsg:
@@ -125,4 +128,7 @@ func (m Model) View() string {
 		return ""
 	}
 	return ""
+}
+
+func getStatusBarContent() {
 }
