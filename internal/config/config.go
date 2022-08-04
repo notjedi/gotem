@@ -10,6 +10,10 @@ type Config struct {
 	FileViewerCmd string
 }
 
+const (
+	ProgramName string = "gotem"
+)
+
 func New() Config {
 	return Config{
 		Host:    "localhost",

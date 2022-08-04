@@ -67,7 +67,7 @@ func GetContext(c config.Config) (Context, error) {
 		if ok, serverVersion, serverMinimumVersion, err := client.RPCVersion(ctx); err != nil {
 			return nil, err
 		} else if !ok {
-			return nil, fmt.Errorf(`Remote transmission RPC version (v%d) is
+			return nil, fmt.Errorf(`remote transmission RPC version (v%d) is
                 incompatible with the transmission library (v%d): remote needs at least v%d`,
 				serverVersion, transmissionrpc.RPCVersion, serverMinimumVersion)
 		}

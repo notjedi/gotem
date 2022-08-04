@@ -3,13 +3,9 @@ package listview
 import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/notjedi/gotem/internal/config"
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/ui/common"
-)
-
-const (
-	// TODO: move this to context? as this is a global thing
-	programName string = "gotem"
 )
 
 type torrentUpdateMsg []list.Item
@@ -25,7 +21,7 @@ func New(ctx context.Context) Model {
 	listModel.SetShowHelp(false)
 	listModel.SetShowStatusBar(false)
 	listModel.DisableQuitKeybindings()
-	listModel.Title = programName
+	listModel.Title = config.ProgramName
 	return Model{
 		List: listModel,
 		ctx:  ctx,

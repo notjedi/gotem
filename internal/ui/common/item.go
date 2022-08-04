@@ -94,9 +94,8 @@ func (t *TorrentItem) getStatus() string {
 		if *t.item.MetadataPercentComplete == 1.0 {
 			statusString := speedToStatus[*t.item.RateDownload > 0.0]
 			return fmt.Sprintf("%s (%.2f%%)", statusString, *t.item.PercentDone*100)
-		} else {
-			return fmt.Sprintf("Getting metadata (%.2f%%)", *t.item.MetadataPercentComplete*100)
 		}
+		return fmt.Sprintf("Getting metadata (%.2f%%)", *t.item.MetadataPercentComplete*100)
 	case transmissionrpc.TorrentStatusSeedWait:
 		return fmt.Sprintf("Queued to seed (%s)", humanize.Ordinal(int(*t.item.QueuePosition)))
 	case transmissionrpc.TorrentStatusSeed:
