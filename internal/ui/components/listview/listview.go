@@ -4,7 +4,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/notjedi/gotem/internal/context"
-	"github.com/notjedi/gotem/internal/theme"
 	"github.com/notjedi/gotem/internal/ui/common"
 )
 
@@ -15,30 +14,21 @@ const (
 
 type torrentUpdateMsg []list.Item
 type Model struct {
-	List         list.Model
-	ctx          context.Context
-	TitlePadding int
+	List list.Model
+	ctx  context.Context
 }
 
-func New(ctx context.Context, theme theme.Theme) Model {
-	listDelegate := NewCustomDelegate()
-	titlePadding := listDelegate.Styles.NormalTitle.GetPaddingLeft() +
-		listDelegate.Styles.NormalTitle.GetPaddingRight()
+func New(ctx context.Context) Model {
+	listDelegate := list.NewDefaultDelegate()
 
 	listModel := list.New([]list.Item{}, listDelegate, 0, 0)
 	listModel.SetShowHelp(false)
 	listModel.SetShowStatusBar(false)
 	listModel.DisableQuitKeybindings()
 	listModel.Title = programName
-	listModel.Styles.Title = listModel.Styles.Title.Copy().
-		Bold(true).
-		Italic(true).
-		Background(theme.TitleBackgroundColor).
-		Foreground(theme.TitleForegroundColor)
 	return Model{
-		List:         listModel,
-		ctx:          ctx,
-		TitlePadding: titlePadding,
+		List: listModel,
+		ctx:  ctx,
 	}
 }
 
@@ -55,8 +45,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case common.TorrentInfoMsg:
 		// BUG: the items are disappearing if i update the items while filterState != Unfiltered
-		// FIXME: ig it makes sense to stop updating the items while filtering
+		// TODO: only send next request if filterState != Unfiltered
 		if m.List.FilterState() == list.Unfiltered {
+			// update items only if `filterState` == Unfiltered
 			m.List.SetItems(msg)
 		}
 		return m, common.TorrentInfoCmd(m.ctx)
