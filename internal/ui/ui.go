@@ -15,7 +15,7 @@ import (
 type View int32
 type Model struct {
 	currView   View
-	context    *context.Context
+	context    context.Context
 	listView   listview.Model
 	detailView detailview.Model
 	statusbar  statusbar.Bubble
@@ -33,7 +33,7 @@ var (
 	docStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
 )
 
-func New(ctx *context.Context) Model {
+func New(ctx context.Context) Model {
 	theme := theme.GetTheme("default")
 	statusbarModel := statusbar.New(
 		statusbar.ColorConfig{
@@ -75,14 +75,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.listView, cmd = m.listView.Update(msg)
 	cmds = append(cmds, cmd)
-	m.detailView, cmd = m.detailView.Update(msg)
-	cmds = append(cmds, cmd)
+	// m.detailView, cmd = m.detailView.Update(msg)
+	// cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
-		m.context.ListWidth = float32(msg.Width - h - m.listView.TitlePadding)
+		// m.context.ListWidth = float32(msg.Width - h - m.listView.TitlePadding)
 		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
 		m.statusbar.SetSize(msg.Width - h)
 		m.statusbar.SetContent(
@@ -95,15 +95,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: find a better way to align fields
 		textWidth := float32(msg.Width - h - m.listView.TitlePadding)
 		if textWidth <= 140 {
-			m.context.TitleSpacing = [...]uint{uint(0.50 * textWidth), uint(0.25 * textWidth),
-				uint(0.25 * textWidth)}
-			m.context.DescSpacing = [...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
-				uint(0.25 * textWidth), uint(0.25 * textWidth)}
+			m.context.SetTitleSpacing([...]uint{uint(0.50 * textWidth), uint(0.25 * textWidth),
+				uint(0.25 * textWidth)})
+			m.context.SetDescSpacing([...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
+				uint(0.25 * textWidth), uint(0.25 * textWidth)})
 		} else {
-			m.context.TitleSpacing = [...]uint{uint(0.75 * textWidth), uint(0.15 * textWidth),
-				uint(0.10 * textWidth)}
-			m.context.DescSpacing = [...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
-				uint(0.25 * textWidth), uint(0.25 * textWidth)}
+			m.context.SetTitleSpacing([...]uint{uint(0.75 * textWidth), uint(0.15 * textWidth),
+				uint(0.10 * textWidth)})
+			m.context.SetDescSpacing([...]uint{uint(0.25 * textWidth), uint(0.25 * textWidth),
+				uint(0.25 * textWidth), uint(0.25 * textWidth)})
 		}
 
 	case tea.KeyMsg:
