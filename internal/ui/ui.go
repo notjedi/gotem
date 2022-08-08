@@ -112,8 +112,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 
+	// creating separate msg for this cause, doing all compute in a go routine
 	case statusbarUpdateMsg:
-		m.statusbar.SetContent(getStatusBarContent(statusbarUpdateMsg))
+		m.statusbar.SetContent(getStatusBarContent(msg))
 	}
 
 	return m, tea.Batch(cmds...)
@@ -133,10 +134,10 @@ func (m Model) View() string {
 
 func getStatusBarContent(torrents []transmissionrpc.Torrent) (string, string, string, string) {
 	/*
-		1. total torrent info
-		2. filter by and sort by values
-		3. total gb uploaded? time elapsed? file count?
-		4. net download and upload speed
+		1. total torrent info -            - do in a go routine, every 2 seconds if it's a large list and every 1 second if it's small
+		2. filter by and sort by values - 料  惡  僚 寮           -- don't really know how to go about this as of now
+		3. total gb uploaded? time elapsed? file count? -              神 羽 ﮫ ﲊ            -- do this on list item change
+		4. net download and upload speed -           --- add all the speeds and update on torrentInfoUpdateMsg
 	*/
 	return config.ProgramName, "", "", ""
 }
