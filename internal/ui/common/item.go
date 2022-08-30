@@ -9,6 +9,7 @@ import (
 	"github.com/hekmon/transmissionrpc/v2"
 	"github.com/muesli/reflow/padding"
 	"github.com/muesli/reflow/truncate"
+	"github.com/notjedi/gotem/internal/context"
 )
 
 const (
@@ -34,17 +35,18 @@ var (
 )
 
 type TorrentItem struct {
-	item         transmissionrpc.Torrent
-	titleSpacing [3]uint
-	descSpacing  [5]uint
+	item transmissionrpc.Torrent
+	ctx  *context.ProgramContext
 }
 
 func (t TorrentItem) Title() string {
-	name := ljustText(*t.item.Name, t.titleSpacing[0])
+    titleSpacing := t.ctx.TitleSpacing()
+
+	name := ljustText(*t.item.Name, titleSpacing[0])
 
 	progress := ljustText(fmt.Sprintf("%s / %s", humanize.Bytes(uint64(*t.item.HaveValid)),
 		humanize.Bytes(uint64(t.item.SizeWhenDone.Byte()))),
-		t.titleSpacing[1])
+		titleSpacing[1])
 
 	// NOTE: network speeds are in SI standards, we prolly want it in IEC standards
 	// if we change this to IEC standards, then it makes sense
@@ -52,26 +54,28 @@ func (t TorrentItem) Title() string {
 	networkSpeed := truncateText(fmt.Sprintf("↓ %s  ↑ %s",
 		humanize.Bytes(uint64(*t.item.RateDownload)),
 		humanize.Bytes(uint64(*t.item.RateUpload))),
-		t.titleSpacing[2], ellipsis)
+		titleSpacing[2], ellipsis)
 
 	return fmt.Sprintf("%s%s%s", name, progress, networkSpeed)
 }
 
 func (t TorrentItem) Description() string {
-	status := ljustText(t.getStatus(), t.descSpacing[0])
+    descSpacing := t.ctx.DescSpacing()
+
+	status := ljustText(t.getStatus(), descSpacing[0])
 
 	uploaded := ljustText(fmt.Sprintf("%s uploaded", humanize.Bytes(uint64(*t.item.UploadedEver))),
-		t.descSpacing[1])
+		descSpacing[1])
 
 	peersConnected := ljustText(fmt.Sprintf("%d peers connected", *t.item.PeersConnected),
-		t.descSpacing[2])
+		descSpacing[2])
 
 	seedsAndLeeches := ljustText(fmt.Sprintf("%d seeds %d leeches", t.maxSeeders(),
-		t.maxLeechers()), t.descSpacing[3])
+		t.maxLeechers()), descSpacing[3])
 
 	etaAndRatio := truncateText(fmt.Sprintf("  %s   𢡄 %.2f",
 		humanizeDuration(time.Second*time.Duration(*t.item.Eta)),
-		math.Max(0.0, *t.item.UploadRatio)), t.descSpacing[4], ellipsis)
+		math.Max(0.0, *t.item.UploadRatio)), descSpacing[4], ellipsis)
 
 	return fmt.Sprintf("%s%s%s%s%s", status, uploaded, peersConnected, seedsAndLeeches, etaAndRatio)
 }

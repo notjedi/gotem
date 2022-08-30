@@ -16,7 +16,7 @@ func GenerateTorrentInfoMsg(ctx *context.ProgramContext) tea.Msg {
 	var items []list.Item
 	// TODO: nitpick: use make() to predefine size of array, so we don't copy back and forth
 	for _, torrent := range torrents {
-		items = append(items, TorrentItem{torrent, ctx.TitleSpacing(), ctx.DescSpacing()})
+		items = append(items, TorrentItem{torrent, ctx})
 	}
 	return TorrentInfoMsg(items)
 }
