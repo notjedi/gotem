@@ -12,7 +12,7 @@ type torrentInfoMsg []list.Item
 type Model struct {
 	hash string
 	id   int64
-	ctx  context.Context
+	ctx  *context.ProgramContext
 	tabs tabs.Model
 }
 
@@ -24,7 +24,7 @@ const (
 	// TrackersTab
 )
 
-func New(hash string, id int64, ctx context.Context) Model {
+func New(hash string, id int64, ctx *context.ProgramContext) Model {
 	tabsModel := tabs.New(3)
 	return Model{
 		hash: hash,

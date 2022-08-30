@@ -11,10 +11,10 @@ import (
 type torrentUpdateMsg []list.Item
 type Model struct {
 	List list.Model
-	ctx  context.Context
+	ctx  *context.ProgramContext
 }
 
-func New(ctx context.Context) Model {
+func New(ctx *context.ProgramContext) Model {
 	listDelegate := list.NewDefaultDelegate()
 
 	listModel := list.New([]list.Item{}, listDelegate, 0, 0)

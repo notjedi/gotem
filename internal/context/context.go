@@ -9,14 +9,6 @@ import (
 	"github.com/notjedi/gotem/internal/config"
 )
 
-type Context interface {
-	Client() *transmissionrpc.Client
-	TitleSpacing() [3]uint
-	DescSpacing() [5]uint
-	SetTitleSpacing([3]uint)
-	SetDescSpacing([5]uint)
-}
-
 type ProgramContext struct {
 	client       *transmissionrpc.Client
 	titleSpacing [3]uint
@@ -32,7 +24,6 @@ func (c *ProgramContext) TitleSpacing() [3]uint {
 }
 
 func (c *ProgramContext) SetTitleSpacing(titleSpacing [3]uint) {
-	// TODO: should i be using a lock here?
 	c.titleSpacing = titleSpacing
 }
 
@@ -41,13 +32,13 @@ func (c *ProgramContext) DescSpacing() [5]uint {
 }
 
 func (c *ProgramContext) SetDescSpacing(descSpacing [5]uint) {
-	// TODO: should i be using a lock here?
 	c.descSpacing = descSpacing
 }
 
-var contextInstance Context
+// TODO: move below code to new file?
+var contextInstance *ProgramContext = nil
 
-func GetContext(c config.Config) (Context, error) {
+func GetContext(c config.Config) (*ProgramContext, error) {
 	if contextInstance == nil {
 		client, err := transmissionrpc.New(c.Host, c.Username, c.Password,
 			&transmissionrpc.AdvancedConfig{
@@ -71,9 +62,10 @@ func GetContext(c config.Config) (Context, error) {
                 incompatible with the transmission library (v%d): remote needs at least v%d`,
 				serverVersion, transmissionrpc.RPCVersion, serverMinimumVersion)
 		}
+        // https://stackoverflow.com/questions/1823286/singleton-in-go
 		// https://github.com/uber-go/guide/blob/master/style.md#pointers-to-interfaces
 		// https://stackoverflow.com/questions/54670125/how-to-get-pointer-to-interface-in-go/54670253#54670253
-		contextInstance = Context(&ProgramContext{client: client})
+		contextInstance = &ProgramContext{client: client}
 	}
 	return contextInstance, nil
 }

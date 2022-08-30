@@ -18,13 +18,11 @@ import (
 type View int32
 type Model struct {
 	currView   View
-	context    context.Context
+	ctx        *context.ProgramContext
 	listView   listview.Model
 	detailView detailview.Model
 	statusbar  statusbar.Bubble
 }
-
-type Direction int
 
 const (
 	TorrentListView View = iota + 1
@@ -36,7 +34,7 @@ var (
 	docStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
 )
 
-func New(ctx context.Context) Model {
+func New(ctx *context.ProgramContext) Model {
 	theme := theme.GetTheme("default")
 	statusbarModel := statusbar.New(
 		statusbar.ColorConfig{
@@ -61,7 +59,7 @@ func New(ctx context.Context) Model {
 
 	return Model{
 		currView:  TorrentListView,
-		context:   ctx,
+		ctx:       ctx,
 		listView:  listViewModel,
 		statusbar: statusbarModel,
 	}
@@ -95,12 +93,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		   HACK: directly using `percent` * msg.Width is a little buggy, cause sometimes in
 		   descSpacing `0.25 * 3` < `0.75`, which leads to off by 1 or 2 spacing issues
 		*/
-		textWidth := uint(math.Ceil(float64(msg.Width-h) * 0.05))
-		m.context.SetTitleSpacing([...]uint{12 * textWidth, // 60%
+		textWidth := uint(math.Ceil(float64(msg.Width-h) * 0.05)) // 5%
+		m.ctx.SetTitleSpacing([...]uint{12 * textWidth,           // 60%
 			4 * textWidth, // 20%
 			4 * textWidth, // 20%
 		})
-		m.context.SetDescSpacing([...]uint{4 * textWidth, // 20%
+		m.ctx.SetDescSpacing([...]uint{4 * textWidth, // 20%
 			4 * textWidth, // 20%
 			4 * textWidth, // 20%
 			4 * textWidth, // 20%
@@ -110,11 +108,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if msg.Type == tea.KeyCtrlC || msg.Type == tea.KeyEsc || msg.String() == "q" {
 			return m, tea.Quit
+		} else if msg.Type == tea.KeyRight || msg.String() == "l" {
+			// TODO: make current view a field of global context
+			// update view in listview, on the item selected
+			// continue if no item is selected
+			m.currView = TorrentDetailView
 		}
 
-	// creating separate msg for this cause, doing all compute in a go routine
-	case statusbarUpdateMsg:
-		m.statusbar.SetContent(getStatusBarContent(msg))
+		// TODO: implement statusbarUpdateMsg
+		// creating separate msg for this cause, doing all compute in a go routine
+		// case statusbarUpdateMsg:
+		// 	m.statusbar.SetContent(getStatusBarContent(msg))
 	}
 
 	return m, tea.Batch(cmds...)
@@ -126,8 +130,9 @@ func (m Model) View() string {
 			docStyle.Render(fmt.Sprintf("%s\n%s", m.listView.View(), m.statusbar.View())),
 		)
 	} else if m.currView == TorrentDetailView {
-		// TODO
-		return ""
+		return lipgloss.JoinVertical(lipgloss.Top,
+			docStyle.Render(fmt.Sprintf("%s\n%s", m.detailView.View(), m.statusbar.View())),
+		)
 	}
 	return ""
 }
