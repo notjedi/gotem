@@ -103,7 +103,7 @@ func (t *TorrentItem) getStatus() string {
 	case transmissionrpc.TorrentStatusIsolated:
 		return "Isolated"
 	default:
-		return "Unknow state"
+		return "Unknown state"
 	}
 }
 

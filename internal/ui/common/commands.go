@@ -11,7 +11,7 @@ import (
 
 type TorrentInfoMsg []list.Item
 
-func GenerateTorrentInfoMsg(ctx context.Context) tea.Msg {
+func GenerateTorrentInfoMsg(ctx *context.ProgramContext) tea.Msg {
 	torrents, _ := ctx.Client().TorrentGet(c.TODO(), torrentFields, nil)
 	var items []list.Item
 	// TODO: nitpick: use make() to predefine size of array, so we don't copy back and forth
@@ -21,7 +21,7 @@ func GenerateTorrentInfoMsg(ctx context.Context) tea.Msg {
 	return TorrentInfoMsg(items)
 }
 
-func TorrentInfoCmd(ctx context.Context) tea.Cmd {
+func TorrentInfoCmd(ctx *context.ProgramContext) tea.Cmd {
 	return tea.Tick(time.Second*time.Duration(1), func(t time.Time) tea.Msg {
 		return GenerateTorrentInfoMsg(ctx)
 	})

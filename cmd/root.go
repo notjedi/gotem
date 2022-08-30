@@ -20,7 +20,7 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:     "gotem",
-		Short:   "A glamourous TUI for the BitTorrent client Transmission.",
+		Short:   "A glamorous TUI for the BitTorrent client Transmission.",
 		Version: "0.1.0",
 		Args:    cobra.MaximumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
