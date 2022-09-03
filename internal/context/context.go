@@ -23,6 +23,7 @@ func (c *ProgramContext) TitleSpacing() [3]uint {
 	return c.titleSpacing
 }
 
+// WARNING: don't use this function in a goroutine, might lead to a data race?
 func (c *ProgramContext) SetTitleSpacing(titleSpacing [3]uint) {
 	c.titleSpacing = titleSpacing
 }
@@ -31,6 +32,7 @@ func (c *ProgramContext) DescSpacing() [5]uint {
 	return c.descSpacing
 }
 
+// WARNING: don't use this function in a goroutine, might lead to a data race?
 func (c *ProgramContext) SetDescSpacing(descSpacing [5]uint) {
 	c.descSpacing = descSpacing
 }

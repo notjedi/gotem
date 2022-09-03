@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/notjedi/gotem/internal/context"
-	"github.com/notjedi/gotem/internal/ui/components/tabs"
+	"github.com/notjedi/tabs"
 )
 
 type Tab int

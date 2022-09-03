@@ -73,17 +73,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	if m.currView == TorrentListView {
-		m.listView, cmd = m.listView.Update(msg)
-	} else if m.currView == TorrentDetailView {
-		m.detailView, cmd = m.detailView.Update(msg)
-	}
-	cmds = append(cmds, cmd)
-
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
+        // TODO: convert this to a method and make `List` private
 		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
 		m.statusbar.SetSize(msg.Width - h)
 
@@ -120,6 +114,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// case statusbarUpdateMsg:
 		// 	m.statusbar.SetContent(getStatusBarContent(msg))
 	}
+
+	if m.currView == TorrentListView {
+		m.listView, cmd = m.listView.Update(msg)
+	} else if m.currView == TorrentDetailView {
+		m.detailView, cmd = m.detailView.Update(msg)
+	}
+	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
