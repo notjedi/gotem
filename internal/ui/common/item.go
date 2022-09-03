@@ -7,9 +7,8 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/hekmon/transmissionrpc/v2"
-	"github.com/muesli/reflow/padding"
-	"github.com/muesli/reflow/truncate"
 	"github.com/notjedi/gotem/internal/context"
+	"github.com/notjedi/gotem/internal/ui/utils"
 )
 
 const (
@@ -40,18 +39,18 @@ type TorrentItem struct {
 }
 
 func (t TorrentItem) Title() string {
-    titleSpacing := t.ctx.TitleSpacing()
+	titleSpacing := t.ctx.TitleSpacing()
 
-	name := ljustText(*t.item.Name, titleSpacing[0])
+	name := utils.LjustText(*t.item.Name, titleSpacing[0])
 
-	progress := ljustText(fmt.Sprintf("%s / %s", humanize.Bytes(uint64(*t.item.HaveValid)),
+	progress := utils.LjustText(fmt.Sprintf("%s / %s", humanize.Bytes(uint64(*t.item.HaveValid)),
 		humanize.Bytes(uint64(t.item.SizeWhenDone.Byte()))),
 		titleSpacing[1])
 
 	// NOTE: network speeds are in SI standards, we prolly want it in IEC standards
 	// if we change this to IEC standards, then it makes sense
 	// to change the file sizes to IEC standards too
-	networkSpeed := truncateText(fmt.Sprintf("↓ %s  ↑ %s",
+	networkSpeed := utils.TruncateText(fmt.Sprintf("↓ %s  ↑ %s",
 		humanize.Bytes(uint64(*t.item.RateDownload)),
 		humanize.Bytes(uint64(*t.item.RateUpload))),
 		titleSpacing[2], ellipsis)
@@ -60,21 +59,21 @@ func (t TorrentItem) Title() string {
 }
 
 func (t TorrentItem) Description() string {
-    descSpacing := t.ctx.DescSpacing()
+	descSpacing := t.ctx.DescSpacing()
 
-	status := ljustText(t.getStatus(), descSpacing[0])
+	status := utils.LjustText(t.getStatus(), descSpacing[0])
 
-	uploaded := ljustText(fmt.Sprintf("%s uploaded", humanize.Bytes(uint64(*t.item.UploadedEver))),
+	uploaded := utils.LjustText(fmt.Sprintf("%s uploaded", humanize.Bytes(uint64(*t.item.UploadedEver))),
 		descSpacing[1])
 
-	peersConnected := ljustText(fmt.Sprintf("%d peers connected", *t.item.PeersConnected),
+	peersConnected := utils.LjustText(fmt.Sprintf("%d peers connected", *t.item.PeersConnected),
 		descSpacing[2])
 
-	seedsAndLeeches := ljustText(fmt.Sprintf("%d seeds %d leeches", t.maxSeeders(),
+	seedsAndLeeches := utils.LjustText(fmt.Sprintf("%d seeds %d leeches", t.maxSeeders(),
 		t.maxLeechers()), descSpacing[3])
 
-	etaAndRatio := truncateText(fmt.Sprintf("  %s   𢡄 %.2f",
-		humanizeDuration(time.Second*time.Duration(*t.item.Eta)),
+	etaAndRatio := utils.TruncateText(fmt.Sprintf("  %s   𢡄 %.2f",
+		utils.HumanizeDuration(time.Second*time.Duration(*t.item.Eta)),
 		math.Max(0.0, *t.item.UploadRatio)), descSpacing[4], ellipsis)
 
 	return fmt.Sprintf("%s%s%s%s%s", status, uploaded, peersConnected, seedsAndLeeches, etaAndRatio)
@@ -129,30 +128,4 @@ func (t *TorrentItem) maxLeechers() int64 {
 		}
 	}
 	return max
-}
-
-func truncateText(text string, maxWidth uint, tail string) string {
-	return truncate.StringWithTail(text, maxWidth, tail)
-}
-
-func ljustText(text string, maxWidth uint) string {
-	return padding.String(truncateText(text, maxWidth, ellipsis), maxWidth)
-}
-
-// taken from - https://gist.github.com/harshavardhana/327e0577c4fed9211f65
-func humanizeDuration(duration time.Duration) string {
-	if duration.Seconds() < 0.0 {
-		return ""
-	} else if duration.Seconds() < 60.0 {
-		return fmt.Sprintf("%ds", int64(duration.Seconds()))
-	} else if duration.Minutes() < 60.0 {
-		return fmt.Sprintf("%dm", int64(duration.Minutes()))
-	} else if duration.Hours() < 24.0 {
-		remainingMinutes := math.Mod(duration.Minutes(), 60)
-		return fmt.Sprintf("%dh %dm",
-			int64(duration.Hours()), int64(remainingMinutes))
-	} else {
-		remainingHours := math.Mod(duration.Hours(), 24)
-		return fmt.Sprintf("%dd %dh", int64(duration.Hours()/24), int64(remainingHours))
-	}
 }
