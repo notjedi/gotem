@@ -2,8 +2,8 @@ package utils
 
 import (
 	"fmt"
+	"math"
 	"time"
-    "math"
 
 	"github.com/muesli/reflow/padding"
 	"github.com/muesli/reflow/truncate"

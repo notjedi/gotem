@@ -11,16 +11,17 @@ package ui
 
 var (
 	torrentFields = []string{"status", "rateDownload",
-        "rateUpload", "uploadedEver"}
+		"rateUpload", "uploadedEver"}
 )
+
 /*
-    TODO: should i make another RPC call for updating status bar?
-    although the number of fields are low, since we are getting these
-    fields in other view, i guess we can update them in a global context?
-    for download and upload speeds, we don't have to depend on the update
-    interval if we can keep a running sum of the net speeds during the
-    interval. will come back to this once i'm done with the detail view,
-    to make a better design choice.
+   TODO: should i make another RPC call for updating status bar?
+   although the number of fields are low, since we are getting these
+   fields in other view, i guess we can update them in a global context?
+   for download and upload speeds, we don't have to depend on the update
+   interval if we can keep a running sum of the net speeds during the
+   interval. will come back to this once i'm done with the detail view,
+   to make a better design choice.
 */
 
 /* type statusbarUpdateMsg []statusbarInfo

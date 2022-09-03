@@ -64,7 +64,7 @@ func GetContext(c config.Config) (*ProgramContext, error) {
                 incompatible with the transmission library (v%d): remote needs at least v%d`,
 				serverVersion, transmissionrpc.RPCVersion, serverMinimumVersion)
 		}
-        // https://stackoverflow.com/questions/1823286/singleton-in-go
+		// https://stackoverflow.com/questions/1823286/singleton-in-go
 		// https://github.com/uber-go/guide/blob/master/style.md#pointers-to-interfaces
 		// https://stackoverflow.com/questions/54670125/how-to-get-pointer-to-interface-in-go/54670253#54670253
 		contextInstance = &ProgramContext{client: client}

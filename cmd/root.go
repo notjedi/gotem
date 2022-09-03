@@ -33,7 +33,7 @@ var (
 			cfg.Host = returnNonNil(host, cfg.Host)
 			cfg.Port = returnNonNil(port, cfg.Port)
 
-            // TODO: do i need to do this here? ig i can move it inside ui.New
+			// TODO: do i need to do this here? ig i can move it inside ui.New
 			ctx, err := context.GetContext(cfg)
 			if err != nil {
 				log.Fatal(err)
