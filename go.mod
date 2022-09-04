@@ -10,7 +10,7 @@ require (
 	github.com/hekmon/transmissionrpc/v2 v2.0.1
 	github.com/knipferrc/teacup v0.3.0
 	github.com/muesli/reflow v0.3.0
-	github.com/notjedi/tabs v0.1.1
+	github.com/notjedi/tabs v0.1.2-0.20220904064906-649e10d1a938
 	github.com/spf13/cobra v1.5.0
 )
 

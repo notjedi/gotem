@@ -52,6 +52,10 @@ github.com/muesli/termenv v0.12.0 h1:KuQRUE3PgxRFWhq4gHvZtPSLCGDqM5q/cYr1pZ39ytc
 github.com/muesli/termenv v0.12.0/go.mod h1:WCCv32tusQ/EEZ5S8oUIIrC/nIuBcxCVqlN4Xfkv+7A=
 github.com/notjedi/tabs v0.1.1 h1:LAM40g/YC2RVV9ZqzeDD2+qwNRDPDqOr930IsD/ffnQ=
 github.com/notjedi/tabs v0.1.1/go.mod h1:1skiUjpLpweG0gU+pE5Xw5OKNM4Z6fhXKmBg00IsePw=
+github.com/notjedi/tabs v0.1.2-0.20220903204358-cc0b4547d5b0 h1:qdZoiRLrNdcuPAF2KgkVw1UZHG3Xo+3o2qKfYSSvWD0=
+github.com/notjedi/tabs v0.1.2-0.20220903204358-cc0b4547d5b0/go.mod h1:1skiUjpLpweG0gU+pE5Xw5OKNM4Z6fhXKmBg00IsePw=
+github.com/notjedi/tabs v0.1.2-0.20220904064906-649e10d1a938 h1:yHGa98JcMtPzvpFpRXx+xf5RBZBFBHNpKj1YtK8DHyo=
+github.com/notjedi/tabs v0.1.2-0.20220904064906-649e10d1a938/go.mod h1:1skiUjpLpweG0gU+pE5Xw5OKNM4Z6fhXKmBg00IsePw=
 github.com/rivo/uniseg v0.1.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rivo/uniseg v0.3.4 h1:3Z3Eu6FGHZWSfNKJTOUiPatWwfc7DzJRU04jFUqJODw=
