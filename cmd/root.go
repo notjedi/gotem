@@ -24,7 +24,6 @@ var (
 		Version: "0.1.0",
 		Args:    cobra.MaximumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-
 			cfg := config.New()
 
 			cfg.Username = returnNonNil(username, cfg.Username)
@@ -44,7 +43,6 @@ var (
 			if err := p.Start(); err != nil {
 				log.Fatal(err)
 			}
-
 		},
 	}
 )
@@ -65,7 +63,6 @@ func Execute() {
 }
 
 func init() {
-
 	rootCmd.PersistentFlags().StringVar(&username, "username", "", "username for host")
 	rootCmd.PersistentFlags().StringVar(&password, "password", "", "password for host")
 	rootCmd.PersistentFlags().BoolVarP(&debugFlag, "debug", "d", false, "enable debugging")

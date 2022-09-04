@@ -42,8 +42,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case common.AllTorrentInfoMsg:
-        // BUG: screen flashes sometimes if i update items when
-        // `filterState` == Filtered, hence the `filterState` check
+		// BUG: screen flashes sometimes if i update items when
+		// `filterState` == Filtered, hence the `filterState` check
 		if m.List.FilterState() == list.Unfiltered {
 			// update items only if `filterState` == Unfiltered
 			cmd = m.List.SetItems(msg)

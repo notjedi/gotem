@@ -10,8 +10,10 @@ import (
 	"github.com/notjedi/gotem/internal/context"
 )
 
-type AllTorrentInfoMsg []list.Item
-type TorrentInfoMsg transmissionrpc.Torrent
+type (
+	AllTorrentInfoMsg []list.Item
+	TorrentInfoMsg    transmissionrpc.Torrent
+)
 
 func GenerateAllTorrentInfoMsg(ctx *context.ProgramContext) tea.Msg {
 	torrents, _ := ctx.Client().TorrentGet(c.TODO(), torrentFields, nil)

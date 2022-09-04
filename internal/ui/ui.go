@@ -16,14 +16,16 @@ import (
 	"github.com/notjedi/gotem/internal/ui/components/listview"
 )
 
-type View int32
-type Model struct {
-	currView   View
-	ctx        *context.ProgramContext
-	listView   listview.Model
-	detailView detailview.Model
-	statusbar  statusbar.Bubble
-}
+type (
+	View  int32
+	Model struct {
+		currView   View
+		ctx        *context.ProgramContext
+		listView   listview.Model
+		detailView detailview.Model
+		statusbar  statusbar.Bubble
+	}
+)
 
 const (
 	TorrentListView View = iota + 1
@@ -31,9 +33,7 @@ const (
 	HelpView
 )
 
-var (
-	appStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
-)
+var appStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
 
 func New(ctx *context.ProgramContext) Model {
 	theme := theme.GetTheme("default")
@@ -89,11 +89,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		   descSpacing `0.25 * 3` < `0.75`, which leads to off by 1 or 2 spacing issues
 		*/
 		textWidth := uint(math.Ceil(float64(msg.Width-h) * 0.05)) // 5%
-		m.ctx.SetTitleSpacing([...]uint{12 * textWidth,           // 60%
-			4 * textWidth, // 20%
-			4 * textWidth, // 20%
+		m.ctx.SetTitleSpacing([...]uint{
+			12 * textWidth, // 60%
+			4 * textWidth,  // 20%
+			4 * textWidth,  // 20%
 		})
-		m.ctx.SetDescSpacing([...]uint{4 * textWidth, // 20%
+		m.ctx.SetDescSpacing([...]uint{
+			4 * textWidth, // 20%
 			4 * textWidth, // 20%
 			4 * textWidth, // 20%
 			4 * textWidth, // 20%

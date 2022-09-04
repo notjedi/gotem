@@ -9,14 +9,16 @@ import (
 	"github.com/notjedi/tabs"
 )
 
-type Tab int
-type torrentInfoMsg []list.Item
-type Model struct {
-	hash string
-	id   int64
-	ctx  *context.ProgramContext
-	tabs tabs.Model
-}
+type (
+	Tab            int
+	torrentInfoMsg []list.Item
+	Model          struct {
+		hash string
+		id   int64
+		ctx  *context.ProgramContext
+		tabs tabs.Model
+	}
+)
 
 const (
 	OverviewTab Tab = iota + 1
@@ -50,7 +52,6 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
