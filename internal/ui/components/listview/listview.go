@@ -42,9 +42,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case common.AllTorrentInfoMsg:
-		// BUG: the items are disappearing if i update the items while filterState != Unfiltered
-		// TODO: only send next request if filterState != Unfiltered
-		// TODO: try removing this if check now
+        // BUG: screen flashes sometimes if i update items when
+        // `filterState` == Filtered, hence the `filterState` check
 		if m.List.FilterState() == list.Unfiltered {
 			// update items only if `filterState` == Unfiltered
 			cmd = m.List.SetItems(msg)

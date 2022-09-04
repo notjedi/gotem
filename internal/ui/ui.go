@@ -106,7 +106,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else if msg.Type == tea.KeyRight || msg.String() == "l" {
 			// TODO: handle index when items are filtered
 			// https://stackoverflow.com/questions/43883502/how-to-invoke-a-method-with-pointer-receiver-after-type-assertion
-			torrent := m.listView.List.Items()[m.listView.List.Index()].(*common.TorrentItem).Item()
+			torrent := m.listView.List.Items()[m.listView.List.Index()].(common.TorrentItem).Item()
 			m.detailView = detailview.New(*torrent.HashString, *torrent.ID, m.ctx)
 
 			// TODO: make current view a field of global context
