@@ -8,7 +8,6 @@ import (
 	"github.com/notjedi/gotem/internal/ui/common"
 )
 
-type torrentUpdateMsg []list.Item
 type Model struct {
 	List list.Model
 	ctx  *context.ProgramContext
@@ -30,26 +29,31 @@ func New(ctx *context.ProgramContext) Model {
 
 func (m Model) Init() tea.Cmd {
 	return func() tea.Msg {
-		return common.GenerateTorrentInfoMsg(m.ctx)
+		return common.GenerateAllTorrentInfoMsg(m.ctx)
 	}
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
 	m.List, cmd = m.List.Update(msg)
+	cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
-	case common.TorrentInfoMsg:
+	case common.AllTorrentInfoMsg:
 		// BUG: the items are disappearing if i update the items while filterState != Unfiltered
 		// TODO: only send next request if filterState != Unfiltered
+		// TODO: try removing this if check now
 		if m.List.FilterState() == list.Unfiltered {
 			// update items only if `filterState` == Unfiltered
-			m.List.SetItems(msg)
+			cmd = m.List.SetItems(msg)
+			cmds = append(cmds, cmd)
 		}
-		return m, common.TorrentInfoCmd(m.ctx)
+		cmds = append(cmds, common.AllTorrentInfoCmd(m.ctx))
 	}
 
-	return m, cmd
+	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {

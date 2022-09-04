@@ -129,3 +129,7 @@ func (t *TorrentItem) maxLeechers() int64 {
 	}
 	return max
 }
+
+func (t *TorrentItem) Item() transmissionrpc.Torrent {
+	return t.item
+}
