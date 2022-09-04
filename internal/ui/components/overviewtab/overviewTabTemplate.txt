@@ -1,0 +1,30 @@
+Name:               {{.Name}}
+Hash:               {{.HashString}}
+ID:                 {{.ID}}
+Location:           {{.DownloadDir}}
+Files:              {{len .Files}}
+Chunks:             {{.PieceCount}};  {{.PieceSize}} each
+
+Size:               {{.SizeWhenDone}}
+Downloaded:         {{.HaveValid}}
+Uploaded:           {{.UploadedEver}}
+Left until done:    {{.LeftUntilDone}}
+Verified:           {{.HaveValid}}
+Corrupt:            {{.CorruptEver}}
+Ratio:              {{.UploadRatio}}
+
+Download limit:     {{.DownloadLimit}}
+Upload limit:       {{.UploadLimit}}
+Comment:            {{.Comment}}
+Creator:            {{.Creator}}
+{{if .IsPrivate}}
+Privacy:            Private torrent
+{{else}}
+Privacy:            Public torrent
+{{end}}
+
+Created at:         {{.DateCreated}}
+Added at:           {{.AddedDate}}
+Started at:         {{.StartDate}}
+Last activity at:   {{.ActivityDate}}
+Completed at:       {{.DoneDate}}

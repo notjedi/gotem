@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/notjedi/gotem/internal/context"
+	"github.com/notjedi/gotem/internal/ui/common"
 	"github.com/notjedi/gotem/internal/ui/components/overviewtab"
 	"github.com/notjedi/tabs"
 )
@@ -58,11 +59,15 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 	// TODO: append TorrentInfoCmd to cmds
 	// TODO: add this Cmd on page change
-	// return common.GenerateTorrentInfoMsg(m.ctx)
+
+	cmds = append(cmds, func() tea.Msg {
+		return common.GenerateTorrentInfoMsg(m.ctx, m.id)
+	})
+	// cmds = append(cmds, common.GenerateTorrentInfoMsg(m.ctx, m.id))
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	return ""
+	return m.tabs.View()
 }
