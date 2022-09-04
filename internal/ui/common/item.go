@@ -15,23 +15,10 @@ const (
 	ellipsis = "…"
 )
 
-var (
-	speedToStatus = map[bool]string{
-		true:  "Downloading",
-		false: "Idle",
-	}
-	/*
-	   i can prolly use package specific fields to squeeze a tiny tiny amount of performance.
-	   since the response to the request made comes from c, i can kinda assume that adding
-	   more fields is basically free. so the performance gain comes down to json serialization and
-	   deserialization? and as go is also kinda fast, ig the performance gain here is immeasurable?
-	*/
-	torrentFields = []string{"id", "hashString", "name", "status", "rateDownload", "rateUpload",
-		"eta", "uploadRatio", "sizeWhenDone", "haveValid", "uploadedEver", "recheckProgress",
-		"peersConnected", "uploadLimited", "downloadLimited", "bandwidthPriority",
-		"peersSendingToUs", "peersGettingFromUs", "seedRatioLimit", "trackerStats", "magnetLink",
-		"honorsSessionLimits", "metadataPercentComplete", "percentDone"}
-)
+var speedToStatus = map[bool]string{
+	true:  "Downloading",
+	false: "Idle",
+}
 
 type TorrentItem struct {
 	item transmissionrpc.Torrent
@@ -43,7 +30,8 @@ func (t TorrentItem) Title() string {
 
 	name := utils.LjustText(*t.item.Name, titleSpacing[0])
 
-	progress := utils.LjustText(fmt.Sprintf("%s / %s", humanize.Bytes(uint64(*t.item.HaveValid)),
+	progress := utils.LjustText(fmt.Sprintf("%s / %s",
+		humanize.Bytes(uint64(*t.item.HaveValid+*t.item.HaveUnchecked)),
 		humanize.Bytes(uint64(t.item.SizeWhenDone.Byte()))),
 		titleSpacing[1])
 
@@ -63,7 +51,8 @@ func (t TorrentItem) Description() string {
 
 	status := utils.LjustText(t.getStatus(), descSpacing[0])
 
-	uploaded := utils.LjustText(fmt.Sprintf("%s uploaded", humanize.Bytes(uint64(*t.item.UploadedEver))),
+	uploaded := utils.LjustText(
+		fmt.Sprintf("%s uploaded", humanize.Bytes(uint64(*t.item.UploadedEver))),
 		descSpacing[1])
 
 	peersConnected := utils.LjustText(fmt.Sprintf("%d peers connected", *t.item.PeersConnected),
@@ -130,6 +119,6 @@ func (t *TorrentItem) maxLeechers() int64 {
 	return max
 }
 
-func (t *TorrentItem) Item() transmissionrpc.Torrent {
+func (t TorrentItem) Item() transmissionrpc.Torrent {
 	return t.item
 }
