@@ -11,6 +11,7 @@ import (
 	"github.com/notjedi/gotem/internal/config"
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/theme"
+	"github.com/notjedi/gotem/internal/ui/common"
 	"github.com/notjedi/gotem/internal/ui/components/detailview"
 	"github.com/notjedi/gotem/internal/ui/components/listview"
 )
@@ -31,7 +32,7 @@ const (
 )
 
 var (
-	docStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
+	appStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
 )
 
 func New(ctx *context.ProgramContext) Model {
@@ -76,8 +77,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		h, v := docStyle.GetFrameSize()
-        // TODO: convert this to a method and make `List` private
+		h, v := appStyle.GetFrameSize()
+		// TODO: convert this to a method and make `List` private
 		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
 		m.statusbar.SetSize(msg.Width - h)
 
@@ -103,6 +104,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Type == tea.KeyCtrlC || msg.Type == tea.KeyEsc || msg.String() == "q" {
 			return m, tea.Quit
 		} else if msg.Type == tea.KeyRight || msg.String() == "l" {
+			// TODO: handle index when items are filtered
+			// https://stackoverflow.com/questions/43883502/how-to-invoke-a-method-with-pointer-receiver-after-type-assertion
+			torrent := m.listView.List.Items()[m.listView.List.Index()].(*common.TorrentItem).Item()
+			m.detailView = detailview.New(*torrent.HashString, *torrent.ID, m.ctx)
+
 			// TODO: make current view a field of global context
 			// update view in listview, on the item selected
 			// continue if no item is selected
@@ -128,11 +134,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	if m.currView == TorrentListView {
 		return lipgloss.JoinVertical(lipgloss.Top,
-			docStyle.Render(fmt.Sprintf("%s\n%s", m.listView.View(), m.statusbar.View())),
+			appStyle.Render(fmt.Sprintf("%s\n%s", m.listView.View(), m.statusbar.View())),
 		)
 	} else if m.currView == TorrentDetailView {
 		return lipgloss.JoinVertical(lipgloss.Top,
-			docStyle.Render(fmt.Sprintf("%s\n%s", m.detailView.View(), m.statusbar.View())),
+			appStyle.Render(fmt.Sprintf("%s\n%s", m.detailView.View(), m.statusbar.View())),
 		)
 	}
 	return ""

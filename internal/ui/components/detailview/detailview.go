@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/notjedi/gotem/internal/context"
+	"github.com/notjedi/gotem/internal/ui/components/overviewtab"
 	"github.com/notjedi/tabs"
 )
 
@@ -25,7 +26,16 @@ const (
 )
 
 func New(hash string, id int64, ctx *context.ProgramContext) Model {
-	tabsModel := tabs.New(3)
+	overviewTab := overviewtab.New(hash, id)
+	var models []tea.Model = []tea.Model{
+		overviewTab,
+	}
+
+	tabsModel := tabs.New(len(models))
+	tabsModel.SetTabModels(models)
+	tabsModel.SetTabTitles([]string{"Overview"})
+	tabsModel.SetCurrentTab(0)
+
 	return Model{
 		hash: hash,
 		id:   id,
@@ -35,7 +45,6 @@ func New(hash string, id int64, ctx *context.ProgramContext) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	// since the default starting section is listview, we can return nil here
 	return nil
 }
 
@@ -46,6 +55,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 	m.tabs, cmd = m.tabs.Update(msg)
 	cmds = append(cmds, cmd)
+
+	// TODO: append TorrentInfoCmd to cmds
+	// TODO: add this Cmd on page change
+	// return common.GenerateTorrentInfoMsg(m.ctx)
 
 	return m, tea.Batch(cmds...)
 }
