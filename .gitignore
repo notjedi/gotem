@@ -19,3 +19,6 @@
 
 # gotem binary
 gotem
+
+# vscode
+.vscode
