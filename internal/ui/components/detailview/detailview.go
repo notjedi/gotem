@@ -48,7 +48,9 @@ func New(hash string, id int64, ctx *context.ProgramContext) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	return func() tea.Msg {
+		return common.GenerateTorrentInfoMsg(m.ctx, m.id)
+	}
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
@@ -61,9 +63,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	// TODO: append TorrentInfoCmd to cmds
 	// TODO: add this Cmd on page change
 
-	cmds = append(cmds, func() tea.Msg {
-		return common.GenerateTorrentInfoMsg(m.ctx, m.id)
-	})
+	cmds = append(cmds, common.TorrentInfoCmd(m.ctx, m.id))
 	// cmds = append(cmds, common.GenerateTorrentInfoMsg(m.ctx, m.id))
 
 	return m, tea.Batch(cmds...)

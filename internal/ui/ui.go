@@ -106,15 +106,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Type == tea.KeyCtrlC || msg.Type == tea.KeyEsc || msg.String() == "q" {
 			return m, tea.Quit
 		} else if msg.Type == tea.KeyRight || msg.String() == "l" {
-			// TODO: handle index when items are filtered
-			// https://stackoverflow.com/questions/43883502/how-to-invoke-a-method-with-pointer-receiver-after-type-assertion
-			torrent := m.listView.List.Items()[m.listView.List.Index()].(common.TorrentItem).Item()
-			m.detailView = detailview.New(*torrent.HashString, *torrent.ID, m.ctx)
+			if m.currView != TorrentDetailView {
+				// TODO: handle index when items are filtered
+				// https://stackoverflow.com/questions/43883502/how-to-invoke-a-method-with-pointer-receiver-after-type-assertion
+				torrent := m.listView.List.Items()[m.listView.List.Index()].(common.TorrentItem).Item()
+				m.detailView = detailview.New(*torrent.HashString, *torrent.ID, m.ctx)
+				cmds = append(cmds, m.detailView.Init())
 
-			// TODO: make current view a field of global context
-			// update view in listview, on the item selected
-			// continue if no item is selected
-			m.currView = TorrentDetailView
+				// TODO: make current view a field of global context
+				// update view in listview, on the item selected
+				// continue if no item is selected
+				m.currView = TorrentDetailView
+			}
 		}
 
 		// TODO: implement statusbarUpdateMsg
