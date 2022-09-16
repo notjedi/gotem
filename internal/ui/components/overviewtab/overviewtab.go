@@ -6,7 +6,7 @@ import (
 	"text/template"
 
 	tea "github.com/charmbracelet/bubbletea"
-	// "github.com/charmbracelet/glamour"
+	"github.com/charmbracelet/glamour"
 	"github.com/hekmon/transmissionrpc/v2"
 	"github.com/notjedi/gotem/internal/ui/common"
 )
@@ -16,14 +16,20 @@ type Model struct {
 	id              int64
 	template        *template.Template
 	prevTorrentInfo transmissionrpc.Torrent
+	renderer        *glamour.TermRenderer
 }
 
 func New(hash string, id int64) tea.Model {
 	template := template.Must(template.ParseFiles("internal/ui/components/overviewtab/overviewTabTemplate.txt"))
+	renderer, _ := glamour.NewTermRenderer(
+		glamour.WithStandardStyle("dark"),
+		glamour.WithPreservedNewLines(),
+	)
 	return Model{
 		hash:     hash,
 		id:       id,
 		template: template,
+		renderer: renderer,
 	}
 }
 
@@ -48,9 +54,8 @@ func (m Model) View() string {
 		log.Fatalln(err)
 	}
 	bufferString := outputBuffer.String()
-	return bufferString
-	// out, _ := glamour.Render(bufferString, "dark")
-	// return out
+	out, _ := m.renderer.Render(bufferString)
+	return out
 }
 
 func (m *Model) SetPrevTorrentInfo(torrentInfo transmissionrpc.Torrent) {

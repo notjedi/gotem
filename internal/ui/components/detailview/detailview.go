@@ -6,6 +6,7 @@ import (
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/ui/common"
 	"github.com/notjedi/gotem/internal/ui/components/overviewtab"
+	// "github.com/notjedi/gotem/internal/ui/components/tabs"
 	"github.com/notjedi/tabs"
 )
 
@@ -16,7 +17,7 @@ type (
 		hash string
 		id   int64
 		ctx  *context.ProgramContext
-		tabs tabs.Model
+		Tabs tabs.Model
 	}
 )
 
@@ -28,6 +29,8 @@ const (
 	// TrackersTab
 )
 
+// TODO: do we need both hash and id?
+// TODO: add width arg
 func New(hash string, id int64, ctx *context.ProgramContext) Model {
 	overviewTab := overviewtab.New(hash, id)
 	var models []tea.Model = []tea.Model{
@@ -43,7 +46,7 @@ func New(hash string, id int64, ctx *context.ProgramContext) Model {
 		hash: hash,
 		id:   id,
 		ctx:  ctx,
-		tabs: tabsModel,
+		Tabs: tabsModel,
 	}
 }
 
@@ -57,18 +60,16 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	m.tabs, cmd = m.tabs.Update(msg)
+	m.Tabs, cmd = m.Tabs.Update(msg)
 	cmds = append(cmds, cmd)
 
 	// TODO: append TorrentInfoCmd to cmds
 	// TODO: add this Cmd on page change
 
 	cmds = append(cmds, common.TorrentInfoCmd(m.ctx, m.id))
-	// cmds = append(cmds, common.GenerateTorrentInfoMsg(m.ctx, m.id))
-
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	return m.tabs.View()
+	return m.Tabs.View()
 }

@@ -80,6 +80,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := appStyle.GetFrameSize()
 		// TODO: convert this to a method and make `List` private
 		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
+		// TODO: this doesn't work cause when currView != TorrentDetailView
+		m.detailView.Tabs.SetWidth(msg.Width - h)
 		m.statusbar.SetSize(msg.Width - h)
 
 		/*

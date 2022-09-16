@@ -1,9 +1,16 @@
+# Overview
+
+## General Info
+
 Name:               {{.Name}}
 Hash:               {{.HashString}}
 ID:                 {{.ID}}
 Location:           {{.DownloadDir}}
 Files:              {{len .Files}}
 Chunks:             {{.PieceCount}};  {{.PieceSize}} each
+***
+
+## Size Info
 
 Size:               {{.SizeWhenDone}}
 Downloaded:         {{.HaveValid}}
@@ -12,16 +19,18 @@ Left until done:    {{.LeftUntilDone}}
 Verified:           {{.HaveValid}}
 Corrupt:            {{.CorruptEver}}
 Ratio:              {{.UploadRatio}}
+***
+
+## Bandwidth Info
 
 Download limit:     {{.DownloadLimit}}
 Upload limit:       {{.UploadLimit}}
 Comment:            {{.Comment}}
 Creator:            {{.Creator}}
-{{if .IsPrivate}}
-Privacy:            Private torrent
-{{else}}
-Privacy:            Public torrent
-{{end}}
+{{if .IsPrivate}} Privacy:            Private torrent {{else}} Privacy:            Public torrent {{end}}
+***
+
+## Time Info
 
 Created at:         {{.DateCreated}}
 Added at:           {{.AddedDate}}
