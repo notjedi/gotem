@@ -13,6 +13,7 @@ require (
 	github.com/muesli/reflow v0.3.0
 	github.com/notjedi/tabs v0.1.2-0.20220904064906-649e10d1a938
 	github.com/spf13/cobra v1.5.0
+	golang.org/x/exp v0.0.0-20220916125017-b168a2c6b86b
 )
 
 require (
