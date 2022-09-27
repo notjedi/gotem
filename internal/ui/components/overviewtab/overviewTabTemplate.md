@@ -12,12 +12,12 @@ Chunks:             {{.PieceCount}};  {{.PieceSize}} each
 
 ## Size Info
 
-Size:               {{.SizeWhenDone}}
-Downloaded:         {{.HaveValid}}
-Uploaded:           {{.UploadedEver}}
-Left until done:    {{.LeftUntilDone}}
-Verified:           {{.HaveValid}}
-Corrupt:            {{.CorruptEver}}
+Size:               {{humanizeBytes .SizeWhenDone.Byte}}
+Downloaded:         {{humanizeBytes .HaveValid}}
+Uploaded:           {{humanizeBytes .UploadedEver}}
+Left until done:    {{humanizeBytes .LeftUntilDone}}
+Verified:           {{humanizeBytes .HaveValid}}
+Corrupt:            {{humanizeCorrupt .CorruptEver}}
 Ratio:              {{.UploadRatio}}
 ***
 
@@ -32,8 +32,8 @@ Creator:            {{.Creator}}
 
 ## Time Info
 
-Created at:         {{.DateCreated}}
-Added at:           {{.AddedDate}}
-Started at:         {{.StartDate}}
-Last activity at:   {{.ActivityDate}}
-Completed at:       {{.DoneDate}}
+Created at:         {{humanizeTime .DateCreated}}
+Added at:           {{humanizeTime .AddedDate}}
+Started at:         {{humanizeTime .StartDate}}
+Last activity at:   {{humanizeTime .ActivityDate}}
+Completed at:       {{humanizeTime .DoneDate}}

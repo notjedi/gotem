@@ -5,13 +5,19 @@ import (
 	"math"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/muesli/reflow/padding"
 	"github.com/muesli/reflow/truncate"
+	"golang.org/x/exp/constraints"
 )
 
 const (
 	Ellipsis = "…"
 )
+
+type Number interface {
+	constraints.Integer | constraints.Float
+}
 
 func TruncateText(text string, maxWidth uint, tail string) string {
 	return truncate.StringWithTail(text, maxWidth, tail)
@@ -37,4 +43,44 @@ func HumanizeDuration(duration time.Duration) string {
 		remainingHours := math.Mod(duration.Hours(), 24)
 		return fmt.Sprintf("%dd %dh", int64(duration.Hours()/24), int64(remainingHours))
 	}
+}
+
+// https://stackoverflow.com/questions/67678331/how-to-write-a-generic-function-that-accepts-any-numerical-type
+func HumanizeBytesGeneric[T Number](bytes T) string {
+	return humanize.Bytes(uint64(bytes))
+}
+
+// FIXME: a better way to do this that is also compatible with FuncMaps
+func HumanizeBytes(bytes interface{}) string {
+	switch val := bytes.(type) {
+	case *int64:
+		return humanize.Bytes(uint64(*val))
+	case int64:
+		return humanize.Bytes(uint64(val))
+	case *float64:
+		return humanize.Bytes(uint64(*val))
+	case float64:
+		return humanize.Bytes(uint64(val))
+	case *uint64:
+		return humanize.Bytes(*val)
+	case uint64:
+		return humanize.Bytes(val)
+	default:
+		return fmt.Sprintf("%T", bytes)
+	}
+}
+
+func HumanizeTime(torrentTime *time.Time) string {
+	if torrentTime.Unix() == 0 {
+		return "Never"
+	} else {
+		return fmt.Sprintf("%s (%s)", torrentTime.Format("02/01/2006 03:04:05 PM"), humanize.Time(*torrentTime))
+	}
+}
+
+func HumanizeCorrupt(bytes *int64) string {
+	if *bytes == 0 {
+		return "Nothing corrupt"
+	}
+	return humanize.Bytes(uint64(*bytes))
 }
