@@ -89,7 +89,7 @@ func (t *TorrentItem) getStatus() string {
 		}
 		return fmt.Sprintf("Getting metadata (%.2f%%)", *t.item.MetadataPercentComplete*100)
 	case transmissionrpc.TorrentStatusSeedWait:
-		return fmt.Sprintf("Queued to seed (%s)", humanize.Ordinal(int(*t.item.QueuePosition)))
+		return fmt.Sprintf("Queued to seed (%d)", *t.item.QueuePosition)
 	case transmissionrpc.TorrentStatusSeed:
 		return "Seeding"
 	case transmissionrpc.TorrentStatusIsolated:
