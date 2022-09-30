@@ -23,11 +23,11 @@ Ratio:              {{.UploadRatio}}
 
 ## Bandwidth Info
 
-Download limit:     {{.DownloadLimit}}
-Upload limit:       {{.UploadLimit}}
+Download limit:     {{humanizeDownloadLimit .}}
+Upload limit:       {{humanizeUploadLimit .}}
 Comment:            {{.Comment}}
 Creator:            {{.Creator}}
-{{if .IsPrivate}} Privacy:            Private torrent {{else}} Privacy:            Public torrent {{end}}
+Privacy:            {{humanizePrivary .IsPrivate}}
 ***
 
 ## Time Info

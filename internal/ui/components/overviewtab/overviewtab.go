@@ -19,9 +19,12 @@ const (
 
 // https://stackoverflow.com/questions/71274361/go-error-cannot-use-generic-type-without-instantiation
 var funcMap = template.FuncMap{
-	"humanizeBytes":   utils.HumanizeBytes,
-	"humanizeTime":    utils.HumanizeTime,
-	"humanizeCorrupt": utils.HumanizeCorrupt,
+	"humanizeTime":          utils.HumanizeTime,
+	"humanizeBytes":         utils.HumanizeBytes,
+	"humanizeCorrupt":       utils.HumanizeCorrupt,
+	"humanizePrivary":       utils.HumanizePrivary,
+	"humanizeUploadLimit":   utils.HumanizeUploadLimit,
+	"humanizeDownloadLimit": utils.HumanizeDownloadLimit,
 }
 
 type Model struct {
@@ -66,6 +69,8 @@ func (m Model) View() string {
 	if m.torrentInfo.SizeWhenDone == nil {
 		return ""
 	}
+	// TODO: remove title `Overview`
+	// TODO: move away from templates?
 	err := m.template.Execute(&outputBuffer, m.torrentInfo)
 	if err != nil {
 		log.Fatalln(err)

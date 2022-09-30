@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"github.com/hekmon/transmissionrpc/v2"
 	"github.com/muesli/reflow/padding"
 	"github.com/muesli/reflow/truncate"
 	"golang.org/x/exp/constraints"
@@ -83,4 +84,25 @@ func HumanizeCorrupt(bytes *int64) string {
 		return "Nothing corrupt"
 	}
 	return humanize.Bytes(uint64(*bytes))
+}
+
+func HumanizePrivary(isPrivate *bool) string {
+	if *isPrivate {
+		return "Private torrent"
+	}
+	return "Public torrent"
+}
+
+func HumanizeDownloadLimit(t transmissionrpc.Torrent) string {
+	if *t.DownloadLimited {
+		return string(*t.DownloadLimit)
+	}
+	return "No limit"
+}
+
+func HumanizeUploadLimit(t transmissionrpc.Torrent) string {
+	if *t.UploadLimited {
+		return string(*t.UploadLimit)
+	}
+	return "No limit"
 }
