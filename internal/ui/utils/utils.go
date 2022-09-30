@@ -95,14 +95,14 @@ func HumanizePrivary(isPrivate *bool) string {
 
 func HumanizeDownloadLimit(t transmissionrpc.Torrent) string {
 	if *t.DownloadLimited {
-		return string(*t.DownloadLimit)
+		return HumanizeBytes(*t.DownloadLimit * 1024)
 	}
 	return "No limit"
 }
 
 func HumanizeUploadLimit(t transmissionrpc.Torrent) string {
 	if *t.UploadLimited {
-		return string(*t.UploadLimit)
+		return HumanizeBytes(*t.UploadLimit * 1024)
 	}
 	return "No limit"
 }
