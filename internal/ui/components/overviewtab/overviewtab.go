@@ -71,6 +71,8 @@ func (m Model) View() string {
 	}
 	// TODO: remove title `Overview`
 	// TODO: move away from templates?
+	// TODO: add status, peers connected to, downloading from, uploading to, seed limit, current
+	// status, eta, percentDone, seeds and leaches
 	err := m.template.Execute(&outputBuffer, m.torrentInfo)
 	if err != nil {
 		log.Fatalln(err)
