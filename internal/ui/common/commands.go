@@ -26,7 +26,7 @@ func GenerateAllTorrentInfoMsg(ctx *context.ProgramContext) tea.Msg {
 }
 
 func AllTorrentInfoCmd(ctx *context.ProgramContext) tea.Cmd {
-	return tea.Tick(time.Second*time.Duration(1), func(t time.Time) tea.Msg {
+	return tea.Tick(time.Second*time.Duration(2), func(t time.Time) tea.Msg {
 		return GenerateAllTorrentInfoMsg(ctx)
 	})
 }

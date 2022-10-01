@@ -38,6 +38,7 @@ func (t TorrentItem) Title() string {
 	// NOTE: network speeds are in SI standards, we prolly want it in IEC standards
 	// if we change this to IEC standards, then it makes sense
 	// to change the file sizes to IEC standards too
+	// TODO: split download and upload speed
 	networkSpeed := utils.TruncateText(fmt.Sprintf("↓ %s  ↑ %s",
 		humanize.Bytes(uint64(*t.item.RateDownload)),
 		humanize.Bytes(uint64(*t.item.RateUpload))),
@@ -61,6 +62,7 @@ func (t TorrentItem) Description() string {
 	seedsAndLeeches := utils.LjustText(fmt.Sprintf("%d seeds %d leeches", t.maxSeeders(),
 		t.maxLeechers()), descSpacing[3])
 
+	// TODO: split eta and ratio
 	etaAndRatio := utils.TruncateText(fmt.Sprintf("  %s   𢡄 %.2f",
 		utils.HumanizeDuration(time.Second*time.Duration(*t.item.Eta)),
 		math.Max(0.0, *t.item.UploadRatio)), descSpacing[4], ellipsis)
