@@ -85,6 +85,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: this doesn't work cause when currView != TorrentDetailView
 		m.detailView.Tabs.SetSize(msg.Width-h, msg.Height-v-tabs.TabHeight)
 		m.statusbar.SetSize(msg.Width - h)
+		m.ctx.Width = msg.Width
+		m.ctx.Height = msg.Height
 
 		/*
 		   NOTE: take padding of NormalTitle style if we modify it
@@ -117,6 +119,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.detailView = detailview.New(*torrent.HashString, *torrent.ID, m.ctx)
 				cmds = append(cmds, m.detailView.Init())
 
+				h, v := appStyle.GetFrameSize()
+				m.detailView.Tabs.SetSize(m.ctx.Width-h, m.ctx.Height-v-tabs.TabHeight)
+
 				// TODO: make current view a field of global context
 				// update view in listview, on the item selected
 				// continue if no item is selected
@@ -130,6 +135,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// 	m.statusbar.SetContent(getStatusBarContent(msg))
 	}
 
+	// TODO: should i move this before the switch statement, so i don't need to check for unwanted
+	// messages
 	if m.currView == TorrentListView {
 		m.listView, cmd = m.listView.Update(msg)
 	} else if m.currView == TorrentDetailView {

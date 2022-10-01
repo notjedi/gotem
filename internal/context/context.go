@@ -11,6 +11,8 @@ import (
 
 type ProgramContext struct {
 	client       *transmissionrpc.Client
+	Width        int
+	Height       int
 	titleSpacing [3]uint
 	descSpacing  [5]uint
 }
