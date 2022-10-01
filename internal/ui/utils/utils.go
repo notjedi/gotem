@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"github.com/hekmon/transmissionrpc/v2"
 	"github.com/muesli/reflow/padding"
 	"github.com/muesli/reflow/truncate"
 	"golang.org/x/exp/constraints"
@@ -47,62 +46,41 @@ func HumanizeDuration(duration time.Duration) string {
 }
 
 // https://stackoverflow.com/questions/67678331/how-to-write-a-generic-function-that-accepts-any-numerical-type
+// https://stackoverflow.com/questions/71274361/go-error-cannot-use-generic-type-without-instantiation
 func HumanizeBytesGeneric[T Number](bytes T) string {
-	return humanize.Bytes(uint64(bytes))
+	return HumanizeBytes(uint64(bytes))
 }
 
 // FIXME: a better way to do this that is also compatible with FuncMaps
-func HumanizeBytes(bytes interface{}) string {
-	switch val := bytes.(type) {
-	case *int64:
-		return humanize.Bytes(uint64(*val))
-	case int64:
-		return humanize.Bytes(uint64(val))
-	case *float64:
-		return humanize.Bytes(uint64(*val))
-	case float64:
-		return humanize.Bytes(uint64(val))
-	case *uint64:
-		return humanize.Bytes(*val)
-	case uint64:
-		return humanize.Bytes(val)
-	default:
-		return fmt.Sprintf("%T", bytes)
-	}
+func HumanizeBytes(bytes uint64) string {
+	return humanize.Bytes(bytes)
 }
 
-func HumanizeTime(torrentTime *time.Time) string {
+func HumanizeTime(torrentTime time.Time) string {
 	if torrentTime.Unix() == 0 {
 		return "Never"
 	} else {
-		return fmt.Sprintf("%s (%s)", torrentTime.Format("02/01/2006 03:04:05 PM"), humanize.Time(*torrentTime))
+		return fmt.Sprintf("%s (%s)", torrentTime.Format("02/01/2006 03:04:05 PM"), humanize.Time(torrentTime))
 	}
 }
 
-func HumanizeCorrupt(bytes *int64) string {
-	if *bytes == 0 {
+func HumanizeCorrupt(bytes int64) string {
+	if bytes == 0 {
 		return "Nothing corrupt"
 	}
-	return humanize.Bytes(uint64(*bytes))
+	return HumanizeBytes(uint64(bytes))
 }
 
-func HumanizePrivary(isPrivate *bool) string {
-	if *isPrivate {
+func HumanizePrivary(isPrivate bool) string {
+	if isPrivate {
 		return "Private torrent"
 	}
 	return "Public torrent"
 }
 
-func HumanizeDownloadLimit(t transmissionrpc.Torrent) string {
-	if *t.DownloadLimited {
-		return HumanizeBytes(*t.DownloadLimit * 1024)
-	}
-	return "No limit"
-}
-
-func HumanizeUploadLimit(t transmissionrpc.Torrent) string {
-	if *t.UploadLimited {
-		return HumanizeBytes(*t.UploadLimit * 1024)
+func HumanizeLimit(limit int64, isLimited bool) string {
+	if isLimited {
+		return HumanizeBytes(uint64(limit * 1024))
 	}
 	return "No limit"
 }

@@ -1,9 +1,7 @@
 package overviewtab
 
 import (
-	"bytes"
-	"log"
-	"text/template"
+	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
@@ -13,31 +11,62 @@ import (
 )
 
 const (
-	templateName     = "overviewTabTemplate.md"
-	templateFilePath = "internal/ui/components/overviewtab/overviewTabTemplate.md"
-)
+	generalInfoTemplate = `
+## General Info
 
-// https://stackoverflow.com/questions/71274361/go-error-cannot-use-generic-type-without-instantiation
-var funcMap = template.FuncMap{
-	"humanizeTime":          utils.HumanizeTime,
-	"humanizeBytes":         utils.HumanizeBytes,
-	"humanizeCorrupt":       utils.HumanizeCorrupt,
-	"humanizePrivary":       utils.HumanizePrivary,
-	"humanizeUploadLimit":   utils.HumanizeUploadLimit,
-	"humanizeDownloadLimit": utils.HumanizeDownloadLimit,
-}
+Name:               %v
+Hash:               %v
+ID:                 %v
+Location:           %v
+Files:              %v
+Chunks:             %v;  %v each
+***
+    `
+
+	sizeInfoTemplate = `
+## Size Info
+
+Size:               %v
+Downloaded:         %v
+Uploaded:           %v
+Left until done:    %v
+Verified:           %v
+Corrupt:            %v
+Ratio:              %v
+***
+    `
+
+	bandwidthInfoTemplate = `
+## Bandwidth Info
+
+Download limit:     %v
+Upload limit:       %v
+Comment:            %v
+Creator:            %v
+Privacy:            %v
+***
+    `
+
+	timeInfoTemplate = `
+## Time Info
+
+Created at:         %v
+Added at:           %v
+Started at:         %v
+Last activity at:   %v
+Completed at:       %v
+    `
+)
 
 type Model struct {
 	hash        string
 	id          int64
-	template    *template.Template
 	torrentInfo transmissionrpc.Torrent
 	renderer    *glamour.TermRenderer
 }
 
 func New(hash string, id int64) tea.Model {
 	// https://stackoverflow.com/questions/49043292/error-template-is-an-incomplete-or-empty-template/49043639#49043639
-	template := template.Must(template.New(templateName).Funcs(funcMap).ParseFiles(templateFilePath))
 	renderer, _ := glamour.NewTermRenderer(
 		glamour.WithStandardStyle("dark"),
 		glamour.WithPreservedNewLines(),
@@ -45,7 +74,6 @@ func New(hash string, id int64) tea.Model {
 	return Model{
 		hash:     hash,
 		id:       id,
-		template: template,
 		renderer: renderer,
 	}
 }
@@ -65,20 +93,45 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	var outputBuffer bytes.Buffer
 	if m.torrentInfo.SizeWhenDone == nil {
 		return ""
 	}
 	// TODO: remove title `Overview`
-	// TODO: move away from templates?
 	// TODO: add status, peers connected to, downloading from, uploading to, seed limit, current
-	// status, eta, percentDone, seeds and leaches
-	err := m.template.Execute(&outputBuffer, m.torrentInfo)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	bufferString := outputBuffer.String()
-	out, _ := m.renderer.Render(bufferString)
+	// status, eta, percentDone, seeds and leeches
+	t := m.torrentInfo
+
+	generalInfoText := fmt.Sprintf(generalInfoTemplate, *t.Name, *t.HashString, *t.ID,
+		*t.DownloadDir, len(t.Files), *t.PieceCount, *t.PieceSize)
+
+	sizeInfoText := fmt.Sprintf(sizeInfoTemplate,
+		utils.HumanizeBytes(uint64(t.SizeWhenDone.Byte())),
+		utils.HumanizeBytesGeneric(*t.HaveValid),
+		utils.HumanizeBytesGeneric(*t.UploadedEver),
+		utils.HumanizeBytesGeneric(*t.LeftUntilDone),
+		utils.HumanizeBytesGeneric(*t.HaveValid),
+		utils.HumanizeBytesGeneric(*t.CorruptEver),
+		*t.UploadRatio,
+	)
+
+	bandwidthInfoText := fmt.Sprintf(bandwidthInfoTemplate,
+		utils.HumanizeLimit(*t.DownloadLimit, *t.DownloadLimited),
+		utils.HumanizeLimit(*t.UploadLimit, *t.UploadLimited),
+		*t.Comment,
+		*t.Creator,
+		utils.HumanizePrivary(*t.IsPrivate),
+	)
+
+	timeInfoText := fmt.Sprintf(timeInfoTemplate,
+		utils.HumanizeTime(*t.DateCreated),
+		utils.HumanizeTime(*t.AddedDate),
+		utils.HumanizeTime(*t.StartDate),
+		utils.HumanizeTime(*t.ActivityDate),
+		utils.HumanizeTime(*t.DoneDate),
+	)
+
+	out, _ := m.renderer.Render(fmt.Sprintf("%s\n%s\n%s\n%s",
+		generalInfoText, sizeInfoText, bandwidthInfoText, timeInfoText))
 	return out
 }
 
