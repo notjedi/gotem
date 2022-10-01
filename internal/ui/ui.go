@@ -108,10 +108,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})
 
 	case tea.KeyMsg:
-		if msg.Type == tea.KeyCtrlC || msg.Type == tea.KeyEsc || msg.String() == "q" {
+		// TODO: replace if statements with switch statements
+		// although i guess go internally converts these switch statements to ifs?
+		if msg.Type == tea.KeyCtrlC {
 			return m, tea.Quit
+		} else if msg.Type == tea.KeyEsc || msg.String() == "q" {
+			if m.currView == TorrentDetailView {
+				m.currView = TorrentListView
+			} else {
+				return m, tea.Quit
+			}
 		} else if msg.Type == tea.KeyRight || msg.String() == "l" {
-			if m.currView != TorrentDetailView {
+			if m.currView == TorrentListView {
 				// TODO: handle index when items are filtered
 				// https://stackoverflow.com/questions/43883502/how-to-invoke-a-method-with-pointer-receiver-after-type-assertion
 				torrent := m.listView.List.Items()[m.listView.List.Index()].(common.TorrentItem).Item()
