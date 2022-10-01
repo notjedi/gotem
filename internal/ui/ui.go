@@ -14,6 +14,8 @@ import (
 	"github.com/notjedi/gotem/internal/ui/common"
 	"github.com/notjedi/gotem/internal/ui/components/detailview"
 	"github.com/notjedi/gotem/internal/ui/components/listview"
+	// "github.com/notjedi/gotem/internal/ui/components/tabs"
+	"github.com/notjedi/tabs"
 )
 
 type (
@@ -81,7 +83,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: convert this to a method and make `List` private
 		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
 		// TODO: this doesn't work cause when currView != TorrentDetailView
-		m.detailView.Tabs.SetWidth(msg.Width - h)
+		m.detailView.Tabs.SetSize(msg.Width-h, msg.Height-v-tabs.TabHeight)
 		m.statusbar.SetSize(msg.Width - h)
 
 		/*
@@ -131,7 +133,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.currView == TorrentListView {
 		m.listView, cmd = m.listView.Update(msg)
 	} else if m.currView == TorrentDetailView {
-		m.detailView, cmd = m.detailView.Update(msg)
+		if _, ok := msg.(tea.WindowSizeMsg); !ok {
+			m.detailView, cmd = m.detailView.Update(msg)
+		}
 	}
 	cmds = append(cmds, cmd)
 
