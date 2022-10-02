@@ -99,6 +99,7 @@ func (m Model) View() string {
 	// TODO: remove title `Overview`
 	// TODO: add status, peers connected to, downloading from, uploading to, seed limit, current
 	// status, eta, percentDone, seeds and leeches
+	// TODO: only update the content on new message
 	t := m.torrentInfo
 
 	generalInfoText := fmt.Sprintf(generalInfoTemplate, *t.Name, *t.HashString, *t.ID,

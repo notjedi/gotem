@@ -14,7 +14,6 @@ import (
 	"github.com/notjedi/gotem/internal/ui/common"
 	"github.com/notjedi/gotem/internal/ui/components/detailview"
 	"github.com/notjedi/gotem/internal/ui/components/listview"
-	// "github.com/notjedi/gotem/internal/ui/components/tabs"
 	"github.com/notjedi/tabs"
 )
 

@@ -15,6 +15,7 @@
 # vendor/
 
 # vim sessions
+.sessions
 *.sess
 
 # gotem binary

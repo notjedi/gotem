@@ -6,7 +6,6 @@ import (
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/ui/common"
 	"github.com/notjedi/gotem/internal/ui/components/overviewtab"
-	// "github.com/notjedi/gotem/internal/ui/components/tabs"
 	"github.com/notjedi/tabs"
 )
 
