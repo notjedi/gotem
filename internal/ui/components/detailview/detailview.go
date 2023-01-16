@@ -30,8 +30,8 @@ const (
 
 // TODO: do we need both hash and id?
 // TODO: add width arg
-func New(hash string, id int64, ctx *context.ProgramContext) Model {
-	overviewTab := overviewtab.New(hash, id)
+func New(hash string, id int64, width int, height int, ctx *context.ProgramContext) Model {
+	overviewTab := overviewtab.New(hash, id, width, height)
 	var models []tea.Model = []tea.Model{
 		overviewTab,
 	}
@@ -40,6 +40,7 @@ func New(hash string, id int64, ctx *context.ProgramContext) Model {
 	tabsModel.SetTabModels(models)
 	tabsModel.SetTabTitles([]string{"Overview"})
 	tabsModel.SetCurrentTab(0)
+	tabsModel.SetSize(width, height)
 
 	return Model{
 		hash: hash,
@@ -59,13 +60,14 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
+	switch msg.(type) {
+	case common.TorrentInfoMsg:
+		cmds = append(cmds, common.TorrentInfoCmd(m.ctx, m.id))
+	}
+
 	m.Tabs, cmd = m.Tabs.Update(msg)
 	cmds = append(cmds, cmd)
 
-	// TODO: append TorrentInfoCmd to cmds
-	// TODO: add this Cmd on page change
-
-	cmds = append(cmds, common.TorrentInfoCmd(m.ctx, m.id))
 	return m, tea.Batch(cmds...)
 }
 

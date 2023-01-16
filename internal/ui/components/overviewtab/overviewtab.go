@@ -65,11 +65,13 @@ type Model struct {
 	renderer    *glamour.TermRenderer
 }
 
-func New(hash string, id int64) tea.Model {
+func New(hash string, id int64, width int, height int) tea.Model {
 	// https://stackoverflow.com/questions/49043292/error-template-is-an-incomplete-or-empty-template/49043639#49043639
 	renderer, _ := glamour.NewTermRenderer(
 		glamour.WithStandardStyle("dark"),
 		glamour.WithPreservedNewLines(),
+		glamour.WithWordWrap(width),
+		// TODO: update worwrap limit on screen size change
 	)
 	return Model{
 		hash:     hash,
@@ -85,10 +87,12 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case common.TorrentInfoMsg:
-		// TODO: should i check if the hash is same?
-		m.torrentInfo = transmissionrpc.Torrent(msg)
-		return m, nil
+		torrentInfo := transmissionrpc.Torrent(msg)
+		if *torrentInfo.HashString == m.hash {
+			m.torrentInfo = torrentInfo
+		}
 	}
+
 	return m, nil
 }
 
@@ -96,10 +100,15 @@ func (m Model) View() string {
 	if m.torrentInfo.SizeWhenDone == nil {
 		return ""
 	}
-	// TODO: remove title `Overview`
 	// TODO: add status, peers connected to, downloading from, uploading to, seed limit, current
 	// status, eta, percentDone, seeds and leeches
 	// TODO: only update the content on new message
+
+	out := m.getRenderedInfo()
+	return out
+}
+
+func (m Model) getRenderedInfo() string {
 	t := m.torrentInfo
 
 	generalInfoText := fmt.Sprintf(generalInfoTemplate, *t.Name, *t.HashString, *t.ID,
@@ -134,8 +143,4 @@ func (m Model) View() string {
 	out, _ := m.renderer.Render(fmt.Sprintf("%s\n%s\n%s\n%s",
 		generalInfoText, sizeInfoText, bandwidthInfoText, timeInfoText))
 	return out
-}
-
-func (m *Model) SetPrevTorrentInfo(torrentInfo transmissionrpc.Torrent) {
-	m.torrentInfo = torrentInfo
 }

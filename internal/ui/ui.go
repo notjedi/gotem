@@ -81,7 +81,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := appStyle.GetFrameSize()
 		// TODO: convert this to a method and make `List` private
 		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
-		m.detailView.Tabs.SetSize(msg.Width-h, msg.Height-v-tabs.TabHeight)
 		m.statusbar.SetSize(msg.Width - h)
 		m.ctx.Width = msg.Width
 		m.ctx.Height = msg.Height
@@ -108,7 +107,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		// TODO: replace if statements with switch statements
-		// although i guess go internally converts these switch statements to ifs?
 		if msg.Type == tea.KeyCtrlC {
 			return m, tea.Quit
 		} else if msg.Type == tea.KeyEsc || msg.String() == "q" {
@@ -122,15 +120,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// TODO: handle index when items are filtered
 				// https://stackoverflow.com/questions/43883502/how-to-invoke-a-method-with-pointer-receiver-after-type-assertion
 				torrent := m.listView.List.Items()[m.listView.List.Index()].(common.TorrentItem).Item()
-				m.detailView = detailview.New(*torrent.HashString, *torrent.ID, m.ctx)
+				h, v := appStyle.GetFrameSize()
+				width := m.ctx.Width - h
+				height := m.ctx.Height - v - tabs.TabHeight
+
+				m.detailView = detailview.New(*torrent.HashString, *torrent.ID, width, height, m.ctx)
 				cmds = append(cmds, m.detailView.Init())
 
-				h, v := appStyle.GetFrameSize()
-				m.detailView.Tabs.SetSize(m.ctx.Width-h, m.ctx.Height-v-tabs.TabHeight)
-
-				// TODO: make current view a field of global context
-				// update view in listview, on the item selected
-				// continue if no item is selected
 				m.currView = TorrentDetailView
 			}
 		}
@@ -146,9 +142,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.currView == TorrentListView {
 		m.listView, cmd = m.listView.Update(msg)
 	} else if m.currView == TorrentDetailView {
-		if _, ok := msg.(tea.WindowSizeMsg); !ok {
-			m.detailView, cmd = m.detailView.Update(msg)
-		}
+		m.detailView, cmd = m.detailView.Update(msg)
 	}
 	cmds = append(cmds, cmd)
 
