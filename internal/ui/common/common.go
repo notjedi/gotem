@@ -8,7 +8,8 @@ var allTorrentInfoFields = []string{
 
 var torrentInfoFields = []string{
 	"id", "hashString", "name", "uploadRatio", "sizeWhenDone", "haveValid", "uploadedEver",
-	"uploadLimited", "downloadLimited", "magnetLink", "downloadDir", "files", "pieceCount",
-	"pieceSize", "leftUntilDone", "corruptEver", "downloadLimit", "uploadLimit", "comment",
-	"creator", "isPrivate", "dateCreated", "addedDate", "startDate", "activityDate", "doneDate",
+	"uploadLimited", "downloadLimited", "magnetLink", "downloadDir", "files", "fileStats",
+	"pieceCount", "pieceSize", "leftUntilDone", "corruptEver", "downloadLimit", "uploadLimit",
+	"comment", "creator", "isPrivate", "dateCreated", "addedDate", "startDate", "activityDate",
+	"doneDate",
 }

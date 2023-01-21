@@ -5,6 +5,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/ui/common"
+	"github.com/notjedi/gotem/internal/ui/components/filestab"
 	"github.com/notjedi/gotem/internal/ui/components/overviewtab"
 	"github.com/notjedi/tabs"
 )
@@ -32,13 +33,16 @@ const (
 // TODO: add width arg
 func New(hash string, id int64, width int, height int, ctx *context.ProgramContext) Model {
 	overviewTab := overviewtab.New(hash, id, width, height)
+	filesTab := filestab.New(hash, id, width, height)
+
 	var models []tea.Model = []tea.Model{
 		overviewTab,
+		filesTab,
 	}
 
 	tabsModel := tabs.New(len(models))
 	tabsModel.SetTabModels(models)
-	tabsModel.SetTabTitles([]string{"Overview"})
+	tabsModel.SetTabTitles([]string{"Overview", "Files"})
 	tabsModel.SetCurrentTab(0)
 	tabsModel.SetSize(width, height)
 

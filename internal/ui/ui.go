@@ -129,6 +129,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, m.detailView.Init())
 
 				m.currView = TorrentDetailView
+				return m, tea.Batch(cmds...)
 			}
 		}
 
