@@ -71,6 +71,7 @@ func (m Model) Init() tea.Cmd {
 	return m.listView.Init()
 }
 
+// BUG: TorrentListView doesn't update once we are out of TorrentDetailView
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd

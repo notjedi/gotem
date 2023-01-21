@@ -20,7 +20,10 @@ type Number interface {
 }
 
 func TruncateText(text string, maxWidth uint, tail string) string {
-	return truncate.StringWithTail(text, maxWidth, tail)
+	// TODO:  should i move the - uint(len(tail)) to LjustText? cause that can
+	// lead to compiler optimizations as Ellipsis is a const and as a result
+	// len(Ellipsis) is also a const. but it makes sense for it to be here.
+	return truncate.StringWithTail(text, maxWidth-uint(len(tail)), tail)
 }
 
 func LjustText(text string, maxWidth uint) string {

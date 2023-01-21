@@ -97,12 +97,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	// TODO: why did i add this check?
 	if m.torrentInfo.SizeWhenDone == nil {
 		return ""
 	}
 	// TODO: add status, peers connected to, downloading from, uploading to, seed limit, current
 	// status, eta, percentDone, seeds and leeches
-	// TODO: only update the content on new message
+	// TODO: only update the content on new message (cache previous results and only update them if
+	// we have received an TorrentInfoMsg message)
 
 	out := m.getRenderedInfo()
 	return out
@@ -140,6 +142,8 @@ func (m Model) getRenderedInfo() string {
 		utils.HumanizeTime(*t.DoneDate),
 	)
 
+	// FIXME: implement a pager myself, viewport is not working well for my needs.
+	// the overview tab is terribly broken when screen size is small.
 	out, _ := m.renderer.Render(fmt.Sprintf("%s\n%s\n%s\n%s",
 		generalInfoText, sizeInfoText, bandwidthInfoText, timeInfoText))
 	return out

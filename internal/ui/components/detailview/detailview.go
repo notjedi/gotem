@@ -13,10 +13,10 @@ type (
 	Tab            int
 	torrentInfoMsg []list.Item
 	Model          struct {
-		hash string
-		id   int64
 		ctx  *context.ProgramContext
 		Tabs tabs.Model
+		hash string
+		id   int64
 	}
 )
 
