@@ -15,10 +15,12 @@ type Directory struct {
 type File struct {
 	name           string
 	priority       int64
-	bytesTotal     int64
-	bytesCompleted int64
+	bytesTotal     uint64
+	bytesCompleted uint64
+	percentDone    float64
 }
 
+// BUG: doesn't work when there is no directory for torrent files, e.g: the movie is a single file.
 func buildFileTree(files []*transmissionrpc.TorrentFile,
 	fileStats []*transmissionrpc.TorrentFileStat,
 ) *Directory {
@@ -39,8 +41,9 @@ func buildFileTree(files []*transmissionrpc.TorrentFile,
 				// TODO: add priority
 				file := &File{
 					name:           dir,
-					bytesTotal:     file.Length,
-					bytesCompleted: file.BytesCompleted,
+					bytesTotal:     uint64(file.Length),
+					bytesCompleted: uint64(file.BytesCompleted),
+					percentDone:    (float64(file.BytesCompleted) / float64(file.Length)) * 100,
 				}
 				currentDir.files = append(currentDir.files, file)
 			} else {
