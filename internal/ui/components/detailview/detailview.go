@@ -1,7 +1,6 @@
 package detailview
 
 import (
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/ui/common"
@@ -11,9 +10,8 @@ import (
 )
 
 type (
-	Tab            int
-	torrentInfoMsg []list.Item
-	Model          struct {
+	Tab   int
+	Model struct {
 		ctx  *context.ProgramContext
 		Tabs tabs.Model
 		hash string
@@ -64,9 +62,19 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	switch msg.(type) {
+	switch msg := msg.(type) {
 	case common.TorrentInfoMsg:
 		cmds = append(cmds, common.TorrentInfoCmd(m.ctx, m.id))
+
+	// NOTE: generate new TorrentInfoMsg instantly on page change, update keys if keymap is updated
+	// TODO: should i call init on page change in tabs library?
+	case tea.KeyMsg:
+		if msg.Type == tea.KeyRight || msg.String() == "l" ||
+			msg.Type == tea.KeyLeft || msg.String() == "h" {
+			cmds = append(cmds, func() tea.Msg {
+				return common.GenerateTorrentInfoMsg(m.ctx, m.id)
+			})
+		}
 	}
 
 	m.Tabs, cmd = m.Tabs.Update(msg)

@@ -39,7 +39,6 @@ type Model struct {
 	torrentInfo transmissionrpc.Torrent
 }
 
-// TODO: remove width and height?
 func New(hash string, id int64, width int, height int) tea.Model {
 	// headerStyle := lipgloss.NewStyle().Bold(true).Align(lipgloss.Center).
 	// 	Background(lipgloss.Color("#6124DF")).Foreground(lipgloss.Color("#ffffff")).
@@ -87,7 +86,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			rows := buildFilesTable(m.fileTree, 0, &fileNumber)
 			// rows = append([]table.Row{table.NewRow(table.RowData{})}, rows...)   // Append empty 1st row
 			m.table = m.table.WithRows(rows)
-			if m.table.TotalRows()-3 > tabHeight {
+			if m.table.TotalRows()-3 > tabHeight && m.table.PageSize() == 0 {
 				m.table = m.table.WithPageSize(tabHeight - 8).WithPaginationWrapping(true)
 			}
 		}
