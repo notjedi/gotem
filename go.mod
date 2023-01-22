@@ -8,6 +8,7 @@ require (
 	github.com/charmbracelet/glamour v0.5.0
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/dustin/go-humanize v1.0.0
+	github.com/evertras/bubble-table v0.14.6
 	github.com/hekmon/transmissionrpc/v2 v2.0.1
 	github.com/knipferrc/teacup v0.3.0
 	github.com/muesli/reflow v0.3.0
@@ -23,7 +24,6 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
-	github.com/evertras/bubble-table v0.14.6 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hekmon/cunits/v2 v2.1.0 // indirect
