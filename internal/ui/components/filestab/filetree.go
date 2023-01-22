@@ -31,18 +31,18 @@ func buildFileTree(files []*transmissionrpc.TorrentFile,
 		name: "/",
 	}
 
-	for _, file := range files {
+	for fileIdx, file := range files {
 		currentDir := dirTree
 		dirs := strings.Split(file.Name, "/")
 
 		for idx, dir := range dirs {
 			if idx == len(dirs)-1 {
-				// TODO: add priority
 				file := &File{
 					name:           dir,
 					bytesTotal:     uint64(file.Length),
 					bytesCompleted: uint64(file.BytesCompleted),
 					percentDone:    (float64(file.BytesCompleted) / float64(file.Length)) * 100,
+					priority:       fileStats[fileIdx].Priority,
 				}
 				currentDir.files = append(currentDir.files, file)
 			} else {

@@ -13,18 +13,26 @@ import (
 )
 
 const (
-	tabSpacing = "    "
+	tabSpacing = "    " // 4 spaces
 
 	columnKeyNumber   = "fileNumebr"
 	columnKeyProgress = "progress"
 	columnKeySize     = "size"
+	columnKeyPriority = "priority"
 	columnKeyFilename = "fileName"
 
 	columnNumberName   = "#"
 	columnProgressName = "Progress"
 	columnSizeName     = "Size"
+	columnPriorityName = "Priority"
 	columnFilenameName = "Filename"
 )
+
+var priorityMap = map[int64]string{
+	1:  "High",
+	0:  "Normal",
+	-1: "Low",
+}
 
 var (
 	tabWidth  int
@@ -47,6 +55,7 @@ func New(hash string, id int64, width int, height int) tea.Model {
 	tabWidth = width
 	tabHeight = height
 
+	// TODO: figure out a way to align columns to right with padding
 	table := table.New([]table.Column{
 		table.NewColumn(columnKeyNumber, columnNumberName, 5).WithStyle(lipgloss.NewStyle().
 			Align(lipgloss.Center)),
@@ -54,6 +63,8 @@ func New(hash string, id int64, width int, height int) tea.Model {
 			Align(lipgloss.Left)),
 		table.NewColumn(columnKeySize, columnSizeName, 10).WithStyle(lipgloss.NewStyle().
 			Align(lipgloss.Left)),
+		table.NewColumn(columnKeyPriority, columnPriorityName, 15).WithStyle(lipgloss.NewStyle().
+			Align(lipgloss.Center)),
 		table.NewFlexColumn(columnKeyFilename, columnFilenameName, 1).WithStyle(lipgloss.NewStyle().
 			Align(lipgloss.Left)),
 	}).WithTargetWidth(width).
@@ -112,6 +123,7 @@ func buildFilesTable(fileTree *Directory, depth int, fileNumber *int) []table.Ro
 			columnKeyNumber:   "",
 			columnKeyProgress: "",
 			columnKeySize:     "",
+			columnKeyPriority: "",
 			columnKeyFilename: name,
 		})
 		rows = append(rows, row)
@@ -128,6 +140,7 @@ func buildFilesTable(fileTree *Directory, depth int, fileNumber *int) []table.Ro
 			columnKeyNumber:   fmt.Sprintf("%v", *fileNumber),
 			columnKeyProgress: fmt.Sprintf(" %0.1f", file.percentDone) + "%",
 			columnKeySize:     fmt.Sprintf(" %v", utils.HumanizeBytes(file.bytesTotal)),
+			columnKeyPriority: fmt.Sprintf(" %v", priorityMap[file.priority]),
 			columnKeyFilename: fileName,
 		})
 		rows = append(rows, row)
