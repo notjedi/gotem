@@ -20,7 +20,6 @@ type File struct {
 	percentDone    float64
 }
 
-// BUG: doesn't work when there is no directory for torrent files, e.g: the movie is a single file.
 func buildFileTree(files []*transmissionrpc.TorrentFile,
 	fileStats []*transmissionrpc.TorrentFileStat,
 ) *Directory {
@@ -29,15 +28,15 @@ func buildFileTree(files []*transmissionrpc.TorrentFile,
 	}
 
 	dirTree := &Directory{
-		name: strings.Split(files[0].Name, "/")[0],
+		name: "/",
 	}
 
 	for _, file := range files {
 		currentDir := dirTree
 		dirs := strings.Split(file.Name, "/")
 
-		for idx, dir := range dirs[1:] {
-			if idx == len(dirs)-2 {
+		for idx, dir := range dirs {
+			if idx == len(dirs)-1 {
 				// TODO: add priority
 				file := &File{
 					name:           dir,

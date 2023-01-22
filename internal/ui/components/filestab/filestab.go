@@ -14,10 +14,6 @@ import (
 
 const (
 	tabSpacing = "    "
-	entry      = "  "
-	lastEntry  = "  "
-	// entry      = "┣ "
-	// lastEntry  = "┗ "
 
 	columnKeyNumber   = "fileNumebr"
 	columnKeyProgress = "progress"
@@ -28,30 +24,12 @@ const (
 	columnProgressName = "Progress"
 	columnSizeName     = "Size"
 	columnFilenameName = "Filename"
-
-	paddingRight = " "
-	paddingLeft  = " "
 )
 
-var customBorder = table.Border{
-	Top:    "─",
-	Left:   "│",
-	Right:  "│",
-	Bottom: "─",
-
-	TopRight:    "╮",
-	TopLeft:     "╭",
-	BottomRight: "╯",
-	BottomLeft:  "╰",
-
-	TopJunction:    "╥",
-	LeftJunction:   "├",
-	RightJunction:  "┤",
-	BottomJunction: "╨",
-	InnerJunction:  "╫",
-
-	InnerDivider: "║",
-}
+var (
+	tabWidth  int
+	tabHeight int
+)
 
 type Model struct {
 	hash        string
@@ -63,6 +41,13 @@ type Model struct {
 
 // TODO: remove width and height?
 func New(hash string, id int64, width int, height int) tea.Model {
+	// headerStyle := lipgloss.NewStyle().Bold(true).Align(lipgloss.Center).
+	// 	Background(lipgloss.Color("#6124DF")).Foreground(lipgloss.Color("#ffffff")).
+	// 	ColorWhitespace(false)
+	headerStyle := lipgloss.NewStyle().Bold(true).Align(lipgloss.Center).Foreground(lipgloss.Color("#A550DF"))
+	tabWidth = width
+	tabHeight = height
+
 	table := table.New([]table.Column{
 		table.NewColumn(columnKeyNumber, columnNumberName, 5).WithStyle(lipgloss.NewStyle().
 			Align(lipgloss.Center)),
@@ -73,19 +58,8 @@ func New(hash string, id int64, width int, height int) tea.Model {
 		table.NewFlexColumn(columnKeyFilename, columnFilenameName, 1).WithStyle(lipgloss.NewStyle().
 			Align(lipgloss.Left)),
 	}).WithTargetWidth(width).
-		WithPaginationWrapping(true).
-		WithPageSize(height - 8).
-		HeaderStyle(lipgloss.NewStyle().Bold(true).Align(lipgloss.Center).
-			Foreground(lipgloss.Color("#A550DF"))).
+		HeaderStyle(headerStyle).
 		Focused(true)
-		// Border(customBorder).
-
-		// HeaderStyle(lipgloss.NewStyle().Bold(true).Align(lipgloss.Center).
-		// 	Foreground(lipgloss.Color("#A550DF"))).
-
-		// HeaderStyle(lipgloss.NewStyle().Bold(true).Align(lipgloss.Center).
-		// 	Background(lipgloss.Color("#6124DF")).Foreground(lipgloss.Color("#ffffff")).
-		// 	ColorWhitespace(false)).
 
 	return Model{
 		hash:  hash,
@@ -102,6 +76,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	// var cmds []tea.Cmd
 
+	// TODO: handle KeyMsg so only files can be selected instead of both directories and files
 	switch msg := msg.(type) {
 	case common.TorrentInfoMsg:
 		torrentInfo := transmissionrpc.Torrent(msg)
@@ -109,9 +84,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fileNumber := 1
 			m.torrentInfo = torrentInfo
 			m.fileTree = buildFileTree(torrentInfo.Files, torrentInfo.FileStats)
-			rows := buildTable(m.fileTree, 0, &fileNumber)
-			// rows = append([]table.Row{table.NewRow(table.RowData{})}, rows...)
+			rows := buildFilesTable(m.fileTree, 0, &fileNumber)
+			// rows = append([]table.Row{table.NewRow(table.RowData{})}, rows...)   // Append empty 1st row
 			m.table = m.table.WithRows(rows)
+			if m.table.TotalRows()-3 > tabHeight {
+				m.table = m.table.WithPageSize(tabHeight - 8).WithPaginationWrapping(true)
+			}
 		}
 	}
 	m.table, cmd = m.table.Update(msg)
@@ -127,48 +105,34 @@ func (m Model) View() string {
 	return fmt.Sprintf("\n%v", m.table.View())
 }
 
-func buildTable(fileTree *Directory, depth int, fileNumber *int) []table.Row {
+func buildFilesTable(fileTree *Directory, depth int, fileNumber *int) []table.Row {
 	rows := []table.Row{}
-
-	// name := fileTree.name
-	// if depth != 0 {
-	// name = fmt.Sprintf("%v%v%v", strings.Repeat(tabSpacing, depth), entry, name)
-	// }
-	name := fmt.Sprintf(" %v%v", strings.Repeat(tabSpacing, depth), fileTree.name)
-	// if depth == 0 && len(fileTree.children) == 0 && len(fileTree.files) == 0 {
-	// }
-
-	row := table.NewRow(table.RowData{
-		columnKeyNumber:   "",
-		columnKeyProgress: "",
-		columnKeySize:     "",
-		columnKeyFilename: name,
-	})
-	rows = append(rows, row)
+	if depth != 0 { // Ignore the first directory as it's does not belong to the torrent and is there for implementation convenience
+		name := fmt.Sprintf(" %v%v", strings.Repeat(tabSpacing, depth-1), fileTree.name)
+		row := table.NewRow(table.RowData{
+			columnKeyNumber:   "",
+			columnKeyProgress: "",
+			columnKeySize:     "",
+			columnKeyFilename: name,
+		})
+		rows = append(rows, row)
+	}
 
 	for _, directory := range fileTree.children {
-		childRows := buildTable(directory, depth+1, fileNumber)
+		childRows := buildFilesTable(directory, depth+1, fileNumber)
 		rows = append(rows, childRows...)
 	}
 
 	for _, file := range fileTree.files {
-		fileName := fmt.Sprintf(" %v%v", strings.Repeat(tabSpacing, depth+1), file.name)
-		// fileName := strings.Repeat(tabSpacing, depth+1)
-		// if idx == len(fileTree.files)-1 {
-		// 	fileName = fmt.Sprintf("%v%v%v", fileName, lastEntry, file.name)
-		// } else {
-		// 	fileName = fmt.Sprintf("%v%v%v", fileName, entry, file.name)
-		// }
-
+		fileName := fmt.Sprintf(" %v%v", strings.Repeat(tabSpacing, depth), file.name)
 		row := table.NewRow(table.RowData{
 			columnKeyNumber:   fmt.Sprintf("%v", *fileNumber),
-			columnKeyProgress: fmt.Sprintf(" %0.2f", file.percentDone) + "%",
+			columnKeyProgress: fmt.Sprintf(" %0.1f", file.percentDone) + "%",
 			columnKeySize:     fmt.Sprintf(" %v", utils.HumanizeBytes(file.bytesTotal)),
 			columnKeyFilename: fileName,
 		})
 		rows = append(rows, row)
-		*fileNumber = *fileNumber + 1
-		// *fileNumber += 1     // TODO: will this work?
+		*fileNumber += 1
 	}
 
 	return rows
