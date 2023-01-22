@@ -28,15 +28,22 @@ const (
 	columnFilenameName = "Filename"
 )
 
-var priorityMap = map[int64]string{
-	1:  "High",
-	0:  "Normal",
-	-1: "Low",
-}
-
 var (
 	tabWidth  int
 	tabHeight int
+
+	priorityHighStyle = lipgloss.NewStyle().Background(lipgloss.Color("#f38ba8")).
+				Foreground(lipgloss.Color("#1e1e2e"))
+	priorityNormalStyle = lipgloss.NewStyle().Background(lipgloss.Color("#cdd6f4")). // should i use  #bac2de for background?
+				Foreground(lipgloss.Color("#1e1e2e"))
+	priorityLowStyle = lipgloss.NewStyle().Background(lipgloss.Color("#f9e2af")).
+				Foreground(lipgloss.Color("#1e1e2e"))
+
+	priorityMap = map[int64]string{
+		1:  priorityHighStyle.Render("High"),
+		0:  priorityNormalStyle.Render("Normal"),
+		-1: priorityLowStyle.Render("Low"),
+	}
 )
 
 type Model struct {
