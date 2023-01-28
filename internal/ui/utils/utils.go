@@ -87,3 +87,17 @@ func HumanizeLimit(limit int64, isLimited bool) string {
 	}
 	return "No limit"
 }
+
+func IntMax(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func IntMin(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}

@@ -68,6 +68,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 	// NOTE: generate new TorrentInfoMsg instantly on page change, update keys if keymap is updated
 	// TODO: should i call init on page change in tabs library?
+	// TODO: move this to each model's init once the tabs library supports it
 	case tea.KeyMsg:
 		if msg.Type == tea.KeyRight || msg.String() == "l" ||
 			msg.Type == tea.KeyLeft || msg.String() == "h" {

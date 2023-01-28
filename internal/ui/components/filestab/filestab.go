@@ -76,7 +76,8 @@ func New(hash string, id int64, width int, height int) tea.Model {
 			Align(lipgloss.Left)),
 	}).WithTargetWidth(width).
 		HeaderStyle(headerStyle).
-		Focused(true)
+		WithKeyMap(table.KeyMap{})
+		// Focused(true)
 
 	return Model{
 		hash:  hash,
@@ -108,6 +109,51 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.table = m.table.WithPageSize(tabHeight - 8).WithPaginationWrapping(true)
 			}
 		}
+
+	// TODO: move to key.Binding and key.Matches instead of what we have now
+	case tea.KeyMsg:
+		// NOTE: prevent panic when []rows is empty
+		if m.table.TotalRows() == 0 {
+			return m, nil
+		}
+		if !m.table.GetFocused() {
+			m.table = m.table.Focused(true)
+		}
+		rows := m.table.GetVisibleRows()
+		currIdx := m.table.GetHighlightedRowIndex()
+
+		if msg.String() == "g" {
+			currIdx = 0
+			msg.Runes = []rune{'j'}
+		} else if msg.String() == "G" {
+			currIdx = m.table.TotalRows()
+			msg.Runes = []rune{'k'}
+		}
+
+		// TODO: should i use len(table.GetVisibleRows()) instead of table.TotalRows(), ig it will
+		// help while filtering stuff?
+		if msg.Type == tea.KeyDown || msg.String() == "j" {
+			toIdx := (currIdx + 1) % m.table.TotalRows()
+			for rows[toIdx].Data[columnKeyNumber] == "" {
+				toIdx = (toIdx + 1) % m.table.TotalRows()
+			}
+			m.table = m.table.WithHighlightedRow(toIdx)
+		} else if msg.Type == tea.KeyUp || msg.String() == "k" {
+			toIdx := currIdx - 1
+			if toIdx <= 0 {
+				toIdx = m.table.TotalRows() - 1
+			}
+
+			for rows[toIdx].Data[columnKeyNumber] == "" {
+				toIdx -= 1
+				if toIdx <= 0 {
+					toIdx = m.table.TotalRows() - 1
+				}
+			}
+			m.table = m.table.WithHighlightedRow(toIdx)
+		}
+		return m, nil
+
 	}
 	m.table, cmd = m.table.Update(msg)
 
