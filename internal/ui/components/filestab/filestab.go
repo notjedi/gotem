@@ -133,21 +133,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: should i use len(table.GetVisibleRows()) instead of table.TotalRows(), ig it will
 		// help while filtering stuff?
 		if msg.Type == tea.KeyDown || msg.String() == "j" {
-			toIdx := (currIdx + 1) % m.table.TotalRows()
+			toIdx := utils.IntMin(currIdx+1, m.table.TotalRows()-1)
 			for rows[toIdx].Data[columnKeyNumber] == "" {
-				toIdx = (toIdx + 1) % m.table.TotalRows()
+				toIdx = utils.IntMin(toIdx+1, m.table.TotalRows()-1)
 			}
 			m.table = m.table.WithHighlightedRow(toIdx)
 		} else if msg.Type == tea.KeyUp || msg.String() == "k" {
-			toIdx := currIdx - 1
-			if toIdx <= 0 {
-				toIdx = m.table.TotalRows() - 1
-			}
-
+			toIdx := utils.IntMax(currIdx-1, 0)
 			for rows[toIdx].Data[columnKeyNumber] == "" {
 				toIdx -= 1
-				if toIdx <= 0 {
-					toIdx = m.table.TotalRows() - 1
+				if toIdx < 0 {
+					m.table = m.table.WithHighlightedRow(0).Focused(false)
+					break
 				}
 			}
 			m.table = m.table.WithHighlightedRow(toIdx)
