@@ -11,5 +11,5 @@ var torrentInfoFields = []string{
 	"uploadLimited", "downloadLimited", "magnetLink", "downloadDir", "files", "fileStats",
 	"pieceCount", "pieceSize", "leftUntilDone", "corruptEver", "downloadLimit", "uploadLimit",
 	"comment", "creator", "isPrivate", "dateCreated", "addedDate", "startDate", "activityDate",
-	"doneDate",
+	"doneDate", "pieces",
 }
