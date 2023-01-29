@@ -2,7 +2,6 @@ package chunkstab
 
 import (
 	"encoding/base64"
-	// "fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -66,10 +65,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	if m.pieceCount == 0 {
-		return ""
-	}
-
 	return tabStyle.Render(m.chunksString)
 }
 
