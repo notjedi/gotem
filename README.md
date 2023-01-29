@@ -3,7 +3,7 @@
 A glamorous clone of [tremc](https://github.com/tremc/tremc).
 
 <div align="center">
-  <video src=".github/preview.mp4" type="video/mp4"></video>
+  <video src="https://user-images.githubusercontent.com/30691152/215321815-13a4f0ce-2230-4e97-9ed3-fec4eb1edec1.mp4" type="video/mp4"></video>
 </div>
 
 ## Roadmap
