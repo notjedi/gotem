@@ -2,6 +2,10 @@
 
 A glamorous clone of [tremc](https://github.com/tremc/tremc).
 
+<div align="center">
+  <video src=".github/preview.mp4" type="video/mp4"></video>
+</div>
+
 ## Roadmap
 
 - [ ] Read-only client (only able to inspect all running torrents and their info)
