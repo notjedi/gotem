@@ -101,3 +101,13 @@ func IntMin(a, b int) int {
 	}
 	return b
 }
+
+func IntCeil(a, b int) int {
+	return int(math.Ceil(float64(a) / float64(b)))
+}
+
+func DivMod(numerator, denominator int) (quotient, remainder int) {
+	quotient = numerator / denominator
+	remainder = numerator % denominator
+	return
+}

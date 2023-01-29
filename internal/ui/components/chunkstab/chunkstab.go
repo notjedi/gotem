@@ -6,8 +6,10 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/hekmon/transmissionrpc/v2"
 	"github.com/notjedi/gotem/internal/ui/common"
+	"github.com/notjedi/gotem/internal/ui/utils"
 )
 
 type Model struct {
@@ -16,15 +18,18 @@ type Model struct {
 	width      int
 	height     int
 	pieces     []byte
-	pieceCount int64
+	pieceCount int
 }
 
+var tabStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
+
 func New(hash string, id int64, width int, height int) Model {
+	h, v := tabStyle.GetFrameSize()
 	return Model{
 		hash:       hash,
 		id:         id,
-		width:      width,
-		height:     height,
+		width:      width - h,
+		height:     height - v,
 		pieceCount: 0,
 	}
 }
@@ -44,14 +49,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			pieces, err := base64.StdEncoding.DecodeString(*torrentInfo.Pieces)
 			if err == nil {
 				m.pieces = pieces
-				m.pieceCount = *torrentInfo.PieceCount
-				// fmt.Println(pieces, *torrentInfo.PieceCount, len(pieces))
+				m.pieceCount = int(*torrentInfo.PieceCount)
 			}
 		}
 
 	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
+		h, v := tabStyle.GetFrameSize()
+		m.width = msg.Width - h
+		m.height = msg.Height - v
 	}
 
 	return m, tea.Batch(cmds...)
@@ -63,29 +68,22 @@ func (m Model) View() string {
 	}
 
 	b := strings.Builder{}
-	b.WriteString("\n")
-	b.WriteString("\n")
+	b.WriteString("\n\n")
 
-	for i := 0; i < len(m.pieces); i++ {
-		temp := 1
-		for shift := 7; shift >= 0; shift-- {
-			if (m.pieces[i] & (1 << shift)) != 0 {
-				b.WriteString("1")
-			} else {
-				b.WriteString("-")
-			}
-			if i != 0 && (((i*8)+temp)%m.width) == 0 {
-				b.WriteString("\n")
-			}
-			temp += 1
+	fill := lipgloss.NewStyle().SetString(" ").Background(lipgloss.Color("#D9DCCF"))
+	for i := 0; i < m.pieceCount; i++ {
+		idx, shift := utils.DivMod(i, 8)
+		havePiece := ((m.pieces[idx] >> (7 - shift)) & 1) == 1
+		if havePiece {
+			b.WriteString(fill.String())
+		} else {
+			b.WriteString("-")
+		}
+
+		if (i+1)%m.width == 0 {
+			b.WriteString("\n")
 		}
 	}
 
-	// for y := 0; y < int(m.pieceCount)/m.width; y++ {
-	// 	for x := 0; x < m.width; x++ {
-	// 	}
-	// 	b.WriteString("\n")
-	// }
-
-	return b.String()
+	return tabStyle.Render(b.String())
 }
