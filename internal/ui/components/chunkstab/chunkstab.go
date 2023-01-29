@@ -13,12 +13,13 @@ import (
 )
 
 type Model struct {
-	hash       string
-	id         int64
-	width      int
-	height     int
-	pieces     []byte
-	pieceCount int
+	hash         string
+	id           int64
+	width        int
+	height       int
+	pieces       []byte
+	pieceCount   int
+	chunksString string
 }
 
 var tabStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
@@ -50,6 +51,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if err == nil {
 				m.pieces = pieces
 				m.pieceCount = int(*torrentInfo.PieceCount)
+				m.chunksString = m.getChunksString()
 			}
 		}
 
@@ -57,6 +59,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := tabStyle.GetFrameSize()
 		m.width = msg.Width - h
 		m.height = msg.Height - v
+		m.chunksString = m.getChunksString()
 	}
 
 	return m, tea.Batch(cmds...)
@@ -67,6 +70,10 @@ func (m Model) View() string {
 		return ""
 	}
 
+	return tabStyle.Render(m.chunksString)
+}
+
+func (m *Model) getChunksString() string {
 	b := strings.Builder{}
 	b.WriteString("\n\n")
 
@@ -84,6 +91,5 @@ func (m Model) View() string {
 			b.WriteString("\n")
 		}
 	}
-
-	return tabStyle.Render(b.String())
+	return b.String()
 }
