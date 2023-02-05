@@ -47,11 +47,11 @@ var (
 )
 
 type Model struct {
-	hash        string
-	id          int64
-	fileTree    *Directory
-	table       table.Model
-	torrentInfo transmissionrpc.Torrent
+	hash         string
+	id           int64
+	renderedInfo string
+	fileTree     *Directory
+	table        table.Model
 }
 
 func New(hash string, id int64, width int, height int) tea.Model {
@@ -100,7 +100,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		torrentInfo := transmissionrpc.Torrent(msg)
 		if *torrentInfo.HashString == m.hash {
 			fileNumber := 1
-			m.torrentInfo = torrentInfo
 			m.fileTree = buildFileTree(torrentInfo.Files, torrentInfo.FileStats)
 			rows := buildFilesTable(m.fileTree, 0, &fileNumber)
 			// rows = append([]table.Row{table.NewRow(table.RowData{})}, rows...)   // Append empty 1st row
@@ -108,6 +107,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.table.TotalRows()-3 > tabHeight && m.table.PageSize() == 0 {
 				m.table = m.table.WithPageSize(tabHeight - 8).WithPaginationWrapping(true)
 			}
+			m.renderedInfo = fmt.Sprintf("\n%v", m.table.View())
+			return m, nil
 		}
 
 	// TODO: move to key.Binding and key.Matches instead of what we have now
@@ -149,8 +150,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.table = m.table.WithHighlightedRow(toIdx)
 		}
+		m.renderedInfo = fmt.Sprintf("\n%v", m.table.View())
 		return m, nil
-
 	}
 	m.table, cmd = m.table.Update(msg)
 
@@ -162,7 +163,7 @@ func (m Model) View() string {
 		return ""
 	}
 
-	return fmt.Sprintf("\n%v", m.table.View())
+	return m.renderedInfo
 }
 
 func buildFilesTable(fileTree *Directory, depth int, fileNumber *int) []table.Row {
