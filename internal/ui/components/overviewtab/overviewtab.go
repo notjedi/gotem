@@ -59,10 +59,10 @@ Completed at:       %v
 )
 
 type Model struct {
-	hash        string
-	id          int64
-	torrentInfo transmissionrpc.Torrent
-	renderer    *glamour.TermRenderer
+	id           int64
+	hash         string
+	renderedInfo string
+	renderer     *glamour.TermRenderer
 }
 
 func New(hash string, id int64, width int, height int) tea.Model {
@@ -89,7 +89,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case common.TorrentInfoMsg:
 		torrentInfo := transmissionrpc.Torrent(msg)
 		if *torrentInfo.HashString == m.hash {
-			m.torrentInfo = torrentInfo
+			m.renderedInfo = m.getRenderedInfo(torrentInfo)
 		}
 	}
 
@@ -98,21 +98,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	// TODO: why did i add this check?
-	if m.torrentInfo.SizeWhenDone == nil {
-		return ""
-	}
+	// if m.torrentInfo.SizeWhenDone == nil {
+	// 	return ""
+	// }
 	// TODO: add status, peers connected to, downloading from, uploading to, seed limit, current
 	// status, eta, percentDone, seeds and leeches
 	// TODO: only update the content on new message (cache previous results and only update them if
 	// we have received an TorrentInfoMsg message)
 
-	out := m.getRenderedInfo()
-	return out
+	return m.renderedInfo
 }
 
-func (m Model) getRenderedInfo() string {
-	t := m.torrentInfo
-
+func (m *Model) getRenderedInfo(t transmissionrpc.Torrent) string {
 	generalInfoText := fmt.Sprintf(generalInfoTemplate, *t.Name, *t.HashString, *t.ID,
 		*t.DownloadDir, len(t.Files), *t.PieceCount, *t.PieceSize)
 
