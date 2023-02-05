@@ -21,7 +21,10 @@ type Model struct {
 	chunksString string
 }
 
-var tabStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
+var (
+	tabStyle   = lipgloss.NewStyle().Margin(1, 2, 1, 2)
+	fillString = lipgloss.NewStyle().SetString(" ").Background(lipgloss.Color("#D9DCCF")).String()
+)
 
 func New(hash string, id int64, width int, height int) Model {
 	h, v := tabStyle.GetFrameSize()
@@ -72,12 +75,11 @@ func (m *Model) getChunksString() string {
 	b := strings.Builder{}
 	b.WriteString("\n\n")
 
-	fill := lipgloss.NewStyle().SetString(" ").Background(lipgloss.Color("#D9DCCF"))
 	for i := 0; i < m.pieceCount; i++ {
 		idx, shift := utils.DivMod(i, 8)
 		havePiece := ((m.pieces[idx] >> (7 - shift)) & 1) == 1
 		if havePiece {
-			b.WriteString(fill.String())
+			b.WriteString(fillString)
 		} else {
 			b.WriteString("-")
 		}

@@ -17,8 +17,7 @@ type (
 
 func GenerateAllTorrentInfoMsg(ctx *context.ProgramContext) tea.Msg {
 	torrents, _ := ctx.Client().TorrentGet(c.TODO(), allTorrentInfoFields, nil)
-	var items []list.Item
-	// TODO: nitpick: use make() to predefine size of array, so we don't copy back and forth
+	items := make([]list.Item, 0, len(torrents))
 	for _, torrent := range torrents {
 		items = append(items, TorrentItem{torrent, ctx})
 	}
