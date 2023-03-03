@@ -112,6 +112,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		} else if msg.Type == tea.KeyEsc || msg.String() == "q" {
 			if m.currView == TorrentDetailView {
+				// BUG: add AllTorrentInfoCmd here
 				m.currView = TorrentListView
 			} else {
 				return m, tea.Quit
