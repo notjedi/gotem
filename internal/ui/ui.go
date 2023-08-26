@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/hekmon/transmissionrpc/v2"
-	"github.com/knipferrc/teacup/statusbar"
+	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/notjedi/gotem/internal/config"
 	"github.com/notjedi/gotem/internal/context"
 	"github.com/notjedi/gotem/internal/theme"
@@ -24,7 +24,7 @@ type (
 		ctx        *context.ProgramContext
 		listView   listview.Model
 		detailView detailview.Model
-		statusbar  statusbar.Bubble
+		statusbar  statusbar.Model
 	}
 )
 
