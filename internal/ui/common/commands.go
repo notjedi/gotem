@@ -13,6 +13,7 @@ import (
 type (
 	AllTorrentInfoMsg []list.Item
 	TorrentInfoMsg    transmissionrpc.Torrent
+	SessionStatsMsg   transmissionrpc.SessionStats
 )
 
 func GenerateAllTorrentInfoMsg(ctx *context.ProgramContext) tea.Msg {
@@ -50,5 +51,22 @@ func TorrentInfoCmd(ctx *context.ProgramContext, id int64) tea.Cmd {
 func TorrentInfoCmdInstant(ctx *context.ProgramContext, id int64) tea.Cmd {
 	return func() tea.Msg {
 		return GenerateTorrentInfoMsg(ctx, id)
+	}
+}
+
+func GenerateSessionStatsMsg(ctx *context.ProgramContext) tea.Msg {
+	sessionStats, _ := ctx.Client().SessionStats(c.TODO())
+	return SessionStatsMsg(sessionStats)
+}
+
+func SessionStatsCmd(ctx *context.ProgramContext) tea.Cmd {
+	return tea.Tick(time.Second*time.Duration(2), func(t time.Time) tea.Msg {
+		return GenerateSessionStatsMsg(ctx)
+	})
+}
+
+func SessionStatsCmdInstant(ctx *context.ProgramContext) tea.Cmd {
+	return func() tea.Msg {
+		return GenerateSessionStatsMsg(ctx)
 	}
 }

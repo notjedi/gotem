@@ -30,6 +30,7 @@ func (t TorrentItem) Title() string {
 
 	name := utils.LjustText(*t.item.Name, titleSpacing[0])
 
+	// add checkingn files progress when torrent is being verified
 	progress := utils.LjustText(fmt.Sprintf("%s / %s",
 		humanize.Bytes(uint64(*t.item.HaveValid+*t.item.HaveUnchecked)),
 		humanize.Bytes(uint64(t.item.SizeWhenDone.Byte()))),

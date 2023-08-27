@@ -36,7 +36,10 @@ const (
 	HelpView
 )
 
-var appStyle = lipgloss.NewStyle().Margin(1, 2, 1, 2)
+var (
+	appStyle     = lipgloss.NewStyle().Margin(1, 2, 1, 2)
+	sessionStats common.SessionStatsMsg
+)
 
 func New(ctx *context.ProgramContext) Model {
 	theme := theme.GetTheme("default")
@@ -70,7 +73,7 @@ func New(ctx *context.ProgramContext) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return m.listView.Init()
+	return tea.Batch(m.listView.Init(), common.SessionStatsCmdInstant(m.ctx))
 }
 
 // BUG: TorrentListView doesn't update once we are out of TorrentDetailView
@@ -151,6 +154,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case common.AllTorrentInfoMsg:
 		torrentItems := convertListItemToTorrentItem(msg)
 		m.statusbar.SetContent(getStatusBarContent(torrentItems))
+
+	case common.SessionStatsMsg:
+		sessionStats = msg
+		cmds = append(cmds, common.SessionStatsCmd(m.ctx))
 	}
 
 	// TODO: should i move this before the switch statement, so i don't need to check for unwanted
@@ -178,6 +185,10 @@ func (m Model) View() string {
 	return ""
 }
 
+func getSessionStatsString(stats common.SessionStatsMsg) string {
+	return fmt.Sprintf(" %s  %s", humanize.Bytes(uint64(stats.CumulativeStats.DownloadedBytes)), humanize.Bytes(uint64(stats.CumulativeStats.UploadedBytes)))
+}
+
 func convertListItemToTorrentItem(items []list.Item) []transmissionrpc.Torrent {
 	torrentItems := make([]transmissionrpc.Torrent, len(items))
 	for i, item := range items {
@@ -195,7 +206,7 @@ func getStatusBarContent(torrents []transmissionrpc.Torrent) (string, string, st
 	netDownloadSpeed := getTotalDownloadSpeed(&torrents)
 	netUploadSpeed := getTotalUploadSpeed(&torrents)
 	statusString := getStatusString(&torrents)
-	return config.ProgramName, statusString, fmt.Sprintf(" %s  %s", humanize.Bytes(uint64(netDownloadSpeed)), humanize.Bytes(uint64(netUploadSpeed))), ""
+	return config.ProgramName, statusString, fmt.Sprintf(" %s  %s", humanize.Bytes(uint64(netDownloadSpeed)), humanize.Bytes(uint64(netUploadSpeed))), getSessionStatsString(sessionStats)
 }
 
 func getStatusString(torrents *[]transmissionrpc.Torrent) string {
@@ -212,6 +223,8 @@ func getStatusString(torrents *[]transmissionrpc.Torrent) string {
 			transmissionrpc.TorrentStatusDownloadWait,
 			transmissionrpc.TorrentStatusSeedWait,
 			transmissionrpc.TorrentStatusIsolated:
+			paused += 1
+		default:
 			paused += 1
 		}
 	}
