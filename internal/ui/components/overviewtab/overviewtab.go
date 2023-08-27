@@ -105,10 +105,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		if msg.String() == "j" {
-			m.yOffset = utils.IntMin(m.yOffset+1, utils.Abs(len(m.lines)-m.height))
+			m.yOffset = utils.Min(m.yOffset+1, utils.Abs(len(m.lines)-m.height))
 		} else if msg.String() == "k" {
 			m.yOffset -= 1
-			m.yOffset = utils.IntMax(m.yOffset, 0)
+			m.yOffset = utils.Max(m.yOffset, 0)
 		}
 	}
 	return m, nil
@@ -133,12 +133,12 @@ func (m *Model) setWidth(width int) {
 
 func (m *Model) setHeight(height int) {
 	m.height = height - HeightPadding
-	m.yOffset = utils.IntMin(m.yOffset, utils.Abs(len(m.lines)-m.height))
+	m.yOffset = utils.Min(m.yOffset, utils.Abs(len(m.lines)-m.height))
 }
 
 func (m *Model) visibleLines() []string {
 	if len(m.lines) > m.height {
-		top := utils.IntMin(len(m.lines)-m.height, m.yOffset)
+		top := utils.Min(len(m.lines)-m.height, m.yOffset)
 		bottom := utils.Clamp(m.yOffset+m.height, top, len(m.lines))
 		return m.lines[top:bottom]
 	}

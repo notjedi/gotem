@@ -89,21 +89,21 @@ func HumanizeLimit(limit int64, isLimited bool) string {
 	return "No limit"
 }
 
-func IntMax(a, b int) int {
+func Max(a, b int) int {
 	if a > b {
 		return a
 	}
 	return b
 }
 
-func IntMin(a, b int) int {
+func Min(a, b int) int {
 	if a < b {
 		return a
 	}
 	return b
 }
 
-func IntCeil(a, b int) int {
+func Ceil(a, b int) int {
 	return int(math.Ceil(float64(a) / float64(b)))
 }
 
@@ -111,7 +111,7 @@ func Clamp(v, low, high int) int {
 	if high < low {
 		low, high = high, low
 	}
-	return IntMin(high, IntMax(low, v))
+	return Min(high, Max(low, v))
 }
 
 func Abs(v int) int {
