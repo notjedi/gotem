@@ -28,9 +28,7 @@ func New(ctx *context.ProgramContext) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return func() tea.Msg {
-		return common.GenerateAllTorrentInfoMsg(m.ctx)
-	}
+	return common.AllTorrentInfoMsgInstant(m.ctx)
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {

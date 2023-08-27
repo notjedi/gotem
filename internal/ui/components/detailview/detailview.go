@@ -48,9 +48,7 @@ func New(hash string, id int64, width int, height int, ctx *context.ProgramConte
 }
 
 func (m Model) Init() tea.Cmd {
-	return func() tea.Msg {
-		return common.GenerateTorrentInfoMsg(m.ctx, m.id)
-	}
+	return common.TorrentInfoCmdInstant(m.ctx, m.id)
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {

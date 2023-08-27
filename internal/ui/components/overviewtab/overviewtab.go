@@ -100,8 +100,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		m.setWidth(msg.Width)
-		m.setHeight(msg.Height)
+		m.SetSize(msg.Width, msg.Height)
 
 	case tea.KeyMsg:
 		if msg.String() == "j" {
@@ -121,6 +120,11 @@ func (m Model) View() string {
 	// we have received an TorrentInfoMsg message)
 
 	return strings.Join(m.visibleLines(), "\n")
+}
+
+func (m *Model) SetSize(width, height int) {
+	m.setWidth(width)
+	m.setHeight(height)
 }
 
 func (m *Model) setWidth(width int) {

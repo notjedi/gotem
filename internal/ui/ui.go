@@ -79,13 +79,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		h, v := appStyle.GetFrameSize()
-		// TODO: convert this to a method and make `List` private
-		m.listView.List.SetSize(msg.Width-h, msg.Height-statusbar.Height-v)
-		m.statusbar.SetSize(msg.Width - h)
 		m.ctx.Width = msg.Width
 		m.ctx.Height = msg.Height
+		h, v := appStyle.GetFrameSize()
+		width, height := msg.Width-h, msg.Height-v
 
+		// TODO: convert this to a method and make `List` private
+		m.listView.List.SetSize(width, height-statusbar.Height)
+		m.statusbar.SetSize(width)
 		/*
 		   NOTE: take padding of NormalTitle style if we modify it
 		   https://github.com/notjedi/gotem/blob/9471ba90d28728b1dccc96cdea0a8db20c53b6de/internal/ui/components/listview/listview.go#L25
@@ -106,13 +107,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			4 * textWidth, // 20%
 		})
 
+		if m.currView == TorrentDetailView {
+			msg.Width = width
+			msg.Height = height - tabs.TabHeight
+			m.detailView, cmd = m.detailView.Update(msg)
+		}
+		cmds = append(cmds, cmd)
+		return m, tea.Batch(cmds...)
+
 	case tea.KeyMsg:
 		// TODO: replace if statements with switch statements
 		if msg.Type == tea.KeyCtrlC {
 			return m, tea.Quit
 		} else if msg.Type == tea.KeyEsc || msg.String() == "q" {
 			if m.currView == TorrentDetailView {
-				// BUG: add AllTorrentInfoCmd here
+				cmds = append(cmds, common.AllTorrentInfoMsgInstant(m.ctx))
 				m.currView = TorrentListView
 			} else {
 				return m, tea.Quit

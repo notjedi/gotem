@@ -104,6 +104,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			rows := buildFilesTable(m.fileTree, 0, &fileNumber)
 			// rows = append([]table.Row{table.NewRow(table.RowData{})}, rows...)   // Append empty 1st row
 			m.table = m.table.WithRows(rows)
+			// TODO: make 3 and 8 a constant
 			if m.table.TotalRows()-3 > tabHeight && m.table.PageSize() == 0 {
 				m.table = m.table.WithPageSize(tabHeight - 8).WithPaginationWrapping(true)
 			}
@@ -111,9 +112,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
+	case tea.WindowSizeMsg:
+		tabWidth = msg.Width
+		tabHeight = msg.Height
+		m.table = m.table.WithTargetWidth(msg.Width)
+		m.renderedInfo = fmt.Sprintf("\n%v", m.table.View())
+
 	// TODO: move to key.Binding and key.Matches instead of what we have now
 	case tea.KeyMsg:
-		// NOTE: prevent panic when []rows is empty
 		if m.table.TotalRows() == 0 {
 			return m, nil
 		}
