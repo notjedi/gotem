@@ -96,15 +96,13 @@ func (m *Model) visibleLines() []string {
 		top := utils.Min(m.yOffset, len(m.lines)-m.height)
 		bottom := utils.Clamp(m.yOffset+m.height, top, len(m.lines))
 		return m.lines[top:bottom]
-		// return []string{m.lines[len(m.lines)-1]}
-		// return []string{m.lines[0]}
 	}
 	return m.lines
 }
 
 func (m *Model) getChunksString() string {
 	b := strings.Builder{}
-	// b.WriteString("\n\n")
+	b.WriteString("\n")
 
 	for i := 0; i < m.pieceCount; i++ {
 		idx, shift := utils.DivMod(i, 8)
