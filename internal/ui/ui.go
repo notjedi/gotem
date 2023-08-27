@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/dustin/go-humanize"
 	"github.com/hekmon/transmissionrpc/v2"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/notjedi/gotem/internal/config"
@@ -143,12 +145,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		// TODO: implement statusbarUpdateMsg
-		// creating separate msg for this cause, doing all compute in a go routine
-		// case statusbarUpdateMsg:
-		// case common.AllTorrentInfoMsg:
-		// 	msg = msg.([]common.TorrentItem)
-		// 	m.statusbar.SetContent(getStatusBarContent(msg))
+	// TODO: implement statusbarUpdateMsg
+	// creating separate msg for this cause, doing all compute in a go routine
+	// case statusbarUpdateMsg:
+	case common.AllTorrentInfoMsg:
+		torrentItems := convertListItemToTorrentItem(msg)
+		m.statusbar.SetContent(getStatusBarContent(torrentItems))
 	}
 
 	// TODO: should i move this before the switch statement, so i don't need to check for unwanted
@@ -176,12 +178,58 @@ func (m Model) View() string {
 	return ""
 }
 
+func convertListItemToTorrentItem(items []list.Item) []transmissionrpc.Torrent {
+	torrentItems := make([]transmissionrpc.Torrent, len(items))
+	for i, item := range items {
+		torrentItems[i] = item.(common.TorrentItem).Item()
+	}
+	return torrentItems
+}
+
 func getStatusBarContent(torrents []transmissionrpc.Torrent) (string, string, string, string) {
 	/*
 		1. total torrent info -            - do in a go routine, every 2 seconds if it's a large list and every 1 second if it's small
 		2. filter by and sort by values - 料  惡  僚 寮           -- don't really know how to go about this as of now
 		3. total gb uploaded? time elapsed? file count? -              神 羽 ﮫ ﲊ            -- do this on list item change
-		4. net download and upload speed -           --- add all the speeds and update on torrentInfoUpdateMsg
 	*/
-	return config.ProgramName, "", "", ""
+	netDownloadSpeed := getTotalDownloadSpeed(&torrents)
+	netUploadSpeed := getTotalUploadSpeed(&torrents)
+	statusString := getStatusString(&torrents)
+	return config.ProgramName, statusString, fmt.Sprintf(" %s  %s", humanize.Bytes(uint64(netDownloadSpeed)), humanize.Bytes(uint64(netUploadSpeed))), ""
+}
+
+func getStatusString(torrents *[]transmissionrpc.Torrent) string {
+	downloading, seeding, paused := 0, 0, 0
+	for _, torrent := range *torrents {
+		switch *torrent.Status {
+		case transmissionrpc.TorrentStatusDownload:
+			downloading += 1
+		case transmissionrpc.TorrentStatusSeed:
+			seeding += 1
+		case transmissionrpc.TorrentStatusStopped,
+			transmissionrpc.TorrentStatusCheckWait,
+			transmissionrpc.TorrentStatusCheck,
+			transmissionrpc.TorrentStatusDownloadWait,
+			transmissionrpc.TorrentStatusSeedWait,
+			transmissionrpc.TorrentStatusIsolated:
+			paused += 1
+		}
+	}
+	return fmt.Sprintf("Downloading: %d Seeding: %d Paused: %d", downloading, seeding, paused)
+}
+
+func getTotalDownloadSpeed(torrents *[]transmissionrpc.Torrent) int64 {
+	var netDownloadSpeed int64 = 0
+	for _, torrent := range *torrents {
+		netDownloadSpeed += *torrent.RateDownload
+	}
+	return netDownloadSpeed
+}
+
+func getTotalUploadSpeed(torrents *[]transmissionrpc.Torrent) int64 {
+	var netUploadSpeed int64 = 0
+	for _, torrent := range *torrents {
+		netUploadSpeed += *torrent.RateUpload
+	}
+	return netUploadSpeed
 }
