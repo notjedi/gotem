@@ -2,6 +2,7 @@ package overviewtab
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
@@ -58,11 +59,16 @@ Completed at:       %v
     `
 )
 
+const HeightPadding = 2
+
 type Model struct {
-	id           int64
-	hash         string
-	renderedInfo string
-	renderer     *glamour.TermRenderer
+	height  int
+	yOffset int
+
+	id       int64
+	hash     string
+	lines    []string
+	renderer *glamour.TermRenderer
 }
 
 func New(hash string, id int64, width int, height int) tea.Model {
@@ -71,11 +77,12 @@ func New(hash string, id int64, width int, height int) tea.Model {
 		glamour.WithStandardStyle("dark"),
 		glamour.WithPreservedNewLines(),
 		glamour.WithWordWrap(width),
-		// TODO: update worwrap limit on screen size change
 	)
 	return Model{
-		hash:     hash,
+		yOffset:  0,
 		id:       id,
+		hash:     hash,
+		height:   height - HeightPadding,
 		renderer: renderer,
 	}
 }
@@ -89,24 +96,53 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case common.TorrentInfoMsg:
 		torrentInfo := transmissionrpc.Torrent(msg)
 		if *torrentInfo.HashString == m.hash {
-			m.renderedInfo = m.getRenderedInfo(torrentInfo)
+			m.lines = strings.Split(m.getRenderedInfo(torrentInfo), "\n")
+		}
+
+	case tea.WindowSizeMsg:
+		m.setWidth(msg.Width)
+		m.setHeight(msg.Height)
+
+	case tea.KeyMsg:
+		if msg.String() == "j" {
+			m.yOffset = utils.IntMin(m.yOffset+1, utils.Abs(len(m.lines)-m.height))
+		} else if msg.String() == "k" {
+			m.yOffset -= 1
+			m.yOffset = utils.IntMax(m.yOffset, 0)
 		}
 	}
-
 	return m, nil
 }
 
 func (m Model) View() string {
-	// TODO: why did i add this check?
-	// if m.torrentInfo.SizeWhenDone == nil {
-	// 	return ""
-	// }
 	// TODO: add status, peers connected to, downloading from, uploading to, seed limit, current
 	// status, eta, percentDone, seeds and leeches
 	// TODO: only update the content on new message (cache previous results and only update them if
 	// we have received an TorrentInfoMsg message)
 
-	return m.renderedInfo
+	return strings.Join(m.visibleLines(), "\n")
+}
+
+func (m *Model) setWidth(width int) {
+	m.renderer, _ = glamour.NewTermRenderer(
+		glamour.WithStandardStyle("dark"),
+		glamour.WithPreservedNewLines(),
+		glamour.WithWordWrap(width),
+	)
+}
+
+func (m *Model) setHeight(height int) {
+	m.height = height - HeightPadding
+	m.yOffset = utils.IntMin(m.yOffset, utils.Abs(len(m.lines)-m.height))
+}
+
+func (m *Model) visibleLines() []string {
+	if len(m.lines) > m.height {
+		top := utils.IntMin(len(m.lines)-m.height, m.yOffset)
+		bottom := utils.Clamp(m.yOffset+m.height, top, len(m.lines))
+		return m.lines[top:bottom]
+	}
+	return m.lines
 }
 
 func (m *Model) getRenderedInfo(t transmissionrpc.Torrent) string {
@@ -139,8 +175,6 @@ func (m *Model) getRenderedInfo(t transmissionrpc.Torrent) string {
 		utils.HumanizeTime(*t.DoneDate),
 	)
 
-	// FIXME: implement a pager myself, viewport is not working well for my needs.
-	// the overview tab is terribly broken when screen size is small.
 	out, _ := m.renderer.Render(fmt.Sprintf("%s\n%s\n%s\n%s",
 		generalInfoText, sizeInfoText, bandwidthInfoText, timeInfoText))
 	return out

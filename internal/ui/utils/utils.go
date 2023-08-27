@@ -107,6 +107,20 @@ func IntCeil(a, b int) int {
 	return int(math.Ceil(float64(a) / float64(b)))
 }
 
+func Clamp(v, low, high int) int {
+	if high < low {
+		low, high = high, low
+	}
+	return IntMin(high, IntMax(low, v))
+}
+
+func Abs(v int) int {
+	if v < 0 {
+		return -v
+	}
+	return v
+}
+
 func DivMod(numerator, denominator int) (quotient, remainder int) {
 	quotient = numerator / denominator
 	remainder = numerator % denominator

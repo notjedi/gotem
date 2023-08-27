@@ -137,6 +137,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: implement statusbarUpdateMsg
 		// creating separate msg for this cause, doing all compute in a go routine
 		// case statusbarUpdateMsg:
+		// case common.AllTorrentInfoMsg:
+		// 	msg = msg.([]common.TorrentItem)
 		// 	m.statusbar.SetContent(getStatusBarContent(msg))
 	}
 

@@ -22,8 +22,6 @@ type (
 
 var ignore = false
 
-// TODO: do we need both hash and id?
-// TODO: add width arg
 func New(hash string, id int64, width int, height int, ctx *context.ProgramContext) Model {
 	overviewTab := overviewtab.New(hash, id, width, height)
 	filesTab := filestab.New(hash, id, width, height)
