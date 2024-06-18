@@ -186,7 +186,7 @@ func (m Model) View() string {
 }
 
 func getSessionStatsString(stats common.SessionStatsMsg) string {
-	return fmt.Sprintf(" %s  %s", humanize.Bytes(uint64(stats.CumulativeStats.DownloadedBytes)), humanize.Bytes(uint64(stats.CumulativeStats.UploadedBytes)))
+	return fmt.Sprintf(" %s  %s", humanize.Bytes(uint64(stats.CumulativeStats.DownloadedBytes)), humanize.Bytes(uint64(stats.CumulativeStats.UploadedBytes)))
 }
 
 func convertListItemToTorrentItem(items []list.Item) []transmissionrpc.Torrent {
@@ -206,7 +206,7 @@ func getStatusBarContent(torrents []transmissionrpc.Torrent) (string, string, st
 	netDownloadSpeed := getTotalDownloadSpeed(&torrents)
 	netUploadSpeed := getTotalUploadSpeed(&torrents)
 	statusString := getStatusString(&torrents)
-	return config.ProgramName, statusString, fmt.Sprintf(" %s  %s", humanize.Bytes(uint64(netDownloadSpeed)), humanize.Bytes(uint64(netUploadSpeed))), getSessionStatsString(sessionStats)
+	return config.ProgramName, statusString, fmt.Sprintf(" %s  %s", humanize.Bytes(uint64(netDownloadSpeed)), humanize.Bytes(uint64(netUploadSpeed))), getSessionStatsString(sessionStats)
 }
 
 func getStatusString(torrents *[]transmissionrpc.Torrent) string {
