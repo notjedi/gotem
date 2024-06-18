@@ -162,9 +162,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// TODO: should i move this before the switch statement, so i don't need to check for unwanted
 	// messages
-	if m.currView == TorrentListView {
+	switch m.currView {
+	case TorrentListView:
 		m.listView, cmd = m.listView.Update(msg)
-	} else if m.currView == TorrentDetailView {
+	case TorrentDetailView:
 		m.detailView, cmd = m.detailView.Update(msg)
 	}
 	cmds = append(cmds, cmd)
@@ -173,16 +174,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	if m.currView == TorrentListView {
+	switch m.currView {
+	case TorrentListView:
 		return lipgloss.JoinVertical(lipgloss.Top,
 			appStyle.Render(fmt.Sprintf("%s\n%s", m.listView.View(), m.statusbar.View())),
 		)
-	} else if m.currView == TorrentDetailView {
+	case TorrentDetailView:
 		return lipgloss.JoinVertical(lipgloss.Top,
 			appStyle.Render(fmt.Sprintf("%s\n%s", m.detailView.View(), m.statusbar.View())),
 		)
+	default:
+		return ""
 	}
-	return ""
 }
 
 func getSessionStatsString(stats common.SessionStatsMsg) string {

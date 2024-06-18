@@ -27,7 +27,7 @@ func New(hash string, id int64, width int, height int, ctx *context.ProgramConte
 	filesTab := filestab.New(hash, id, width, height)
 	chunksTab := chunkstab.New(hash, id, width, height)
 
-	var models []tea.Model = []tea.Model{
+	models := []tea.Model{
 		overviewTab,
 		filesTab,
 		chunksTab,

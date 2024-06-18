@@ -40,7 +40,7 @@ var (
 
 			// TODO: add bubbletea debug
 			p := tea.NewProgram(ui.New(ctx), tea.WithAltScreen())
-			if err := p.Start(); err != nil {
+			if _, err := p.Run(); err != nil {
 				log.Fatal(err)
 			}
 		},
